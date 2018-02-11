@@ -181,6 +181,7 @@ import (
     "fmt"
 	"github.com/go-redis/redis"
 	"database/sql"
+	"encoding/json"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -249,7 +250,7 @@ func GenerateTableReadFunction(tableInfo *TableInfo) string {
 	ret = ret + "        return\n"
 	ret = ret + "    }\n"
 	ret = ret + fmt.Sprintf("    sql := fmt.Sprintf(\"select * from %s where %s = %s\", key)\n", tableName, keyName, ConvertCondFormatStr(keyType))
-	ret = ret + `"
+	ret = ret + `
 	rows, err := sqldb.Query(sql)
 	check(err)
 	//返回所有列
@@ -273,6 +274,7 @@ func GenerateTableReadFunction(tableInfo *TableInfo) string {
 		}
 		break
 	}
+	return
 }
 `
 	return ret
@@ -281,8 +283,52 @@ func GenerateTableReadFunction(tableInfo *TableInfo) string {
 func GenerateTableAddFunction(tableInfo *TableInfo) string {
 	tableName := tableInfo.TableName
 	keyName := tableInfo.TableFields[0].FieldName
-	keyType := tableInfo.TableFields[0].FieldType
-	return ""
+	//keyType := tableInfo.TableFields[0].FieldType
+
+	ret := "\n\n"
+	ret = ret + "//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,否则返回false\n"
+	ret = ret + "func Add_" + tableName + "(contentJson string) bool{"
+	ret = ret + `
+	var contentMaps map[string]interface{}
+	err := json.Unmarshal(contentJson, &contentMaps)
+	if err == nil {
+		return false
+	}
+`
+	ret = ret + "    tableKey, isOk := contentMaps[\"" + keyName + "\"]"
+	ret = ret + `
+	if isOk == false{
+		return false
+	}
+`
+	ret = ret + "    redisKey := " + tableName + "+\":\"+tableKey\n"
+	ret = ret + `
+	isExsit, _ := client.Exists(redisKey)
+	if isExsit == true {
+		return false
+	}
+	
+	//Write to Redis
+	var fieldValue string
+	var isExsit bool
+	`
+	for i := 0; i < len(tableInfo.TableFields); i++ {
+		tableField := tableInfo.TableFields[i]
+		ret = ret + fmt.Sprintf("\n    fieldValue, isExsit = contentMaps[\"%s\"])\n", tableField.FieldName)
+		ret = ret + "    if isExsit == true {\n"
+		ret = ret + fmt.Sprintf("        client.HSet(redisKey, \"%s\", fieldValue)\n    }else{\n", tableField.FieldName)
+		ret = ret + fmt.Sprintf("        client.HSet(redisKey, \"%s\", \"\")\n    }\n", tableField.FieldName)
+	}
+
+	ret = ret + `
+	//Write to Mysql!
+	sql := 
+	
+	
+	`
+
+	ret = ret + "\n    return true\n}\n"
+	return ret
 }
 
 func GenerateTableUpdateFunction(tableInfo *TableInfo) string {
