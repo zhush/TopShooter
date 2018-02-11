@@ -1,0 +1,3 @@
+manageserver:
+是管理所有gameserver的对象
+对于需要全服广播的消息，也需要这里进行转发

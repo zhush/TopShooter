@@ -1,0 +1,7 @@
+{
+	"Addr":"127.0.0.1:13083",
+	"ManagerAddr":"127.0.0.1:13084",
+	"Name":"GameServer1",
+	"ServerType":2,
+	"ServerId":5001
+}
