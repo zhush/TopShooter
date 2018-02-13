@@ -195,6 +195,32 @@ func check(e error) {
 	}
 }
 
+func toString(a interface{}) string{
+	
+	if  v,p:=a.(int);p{
+	 	return strconv.Itoa(v)
+	}
+	
+	if v,p:=a.(float64);  p{
+	 	return strconv.FormatFloat(v,'f', -1, 64)
+	}
+	
+	if v,p:=a.(float32); p {
+		return strconv.FormatFloat(float64(v),'f', -1, 32)
+	}
+	
+	if v,p:=a.(int16); p { 
+		return strconv.Itoa(int(v))
+	}
+	if v,p:=a.(uint); p { 
+		return strconv.Itoa(int(v))
+	}
+	if v,p:=a.(int32); p { 
+		return strconv.Itoa(int(v))
+	}
+	return "wrong"
+}
+
 func init(){
 	client = redis.NewClient(redisOptions())
 	client.FlushDB()
@@ -286,26 +312,26 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 	//keyType := tableInfo.TableFields[0].FieldType
 
 	ret := "\n\n"
-	ret = ret + "//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,否则返回false\n"
-	ret = ret + "func Add_" + tableName + "(contentJson string) bool{"
+	ret = ret + "//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,和自增的id, 否则返回false, 0\n"
+	ret = ret + "func Add_" + tableName + "(contentJson string) (bool, int64){"
 	ret = ret + `
 	var contentMaps map[string]interface{}
 	err := json.Unmarshal(contentJson, &contentMaps)
 	if err == nil {
-		return false
+		return false, 0
 	}
 `
 	ret = ret + "    tableKey, isOk := contentMaps[\"" + keyName + "\"]"
 	ret = ret + `
 	if isOk == false{
-		return false
+		return false, 0
 	}
 `
 	ret = ret + "    redisKey := " + tableName + "+\":\"+tableKey\n"
 	ret = ret + `
 	isExsit, _ := client.Exists(redisKey)
 	if isExsit == true {
-		return false
+		return false, 0
 	}
 	
 	//Write to Redis
@@ -322,12 +348,51 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 
 	ret = ret + `
 	//Write to Mysql!
-	sql := 
+	keys := "("
+	values := "("
+	for k, v in range(contentMaps){
+		if keys != "("{
+			keys = keys + ","
+		}
+		keys = keys + k
+		if values != "("{
+			values = values + ","
+		}
+		switch vtype:=v.(type){
+			case string:
+				values = values + "\"" + v + "\""
+			default:
+				values = values + toString(v)
+		}
+	}
 	
-	
-	`
+	keys = keys + ")"
+	values = values + ")"	
+`
+	ret = ret + fmt.Sprintf("    tableNames := \"%s\"", tableName)
+	ret = ret + `
+	sql := fmt.Sprintf("insert into %s (%s) values (%s)", tableNames, keys, values)
+	ret1, err1 := dbsvr.db.Exec(sql)
+	if err1 != nil {
+		log.Error("exec:%s failed!", sql)
+		(*result).Result = -1
 
-	ret = ret + "\n    return true\n}\n"
+		(*result).ErrorMsg = err1.Error()
+		return false, 0
+	}
+	lastInserId := 0
+	if LastInsertId, err2 := ret1.LastInsertId(); nil == err2 {
+		lastInserId = LastInsertId
+	}
+	if RowsAffected, err3 := ret1.RowsAffected(); nil != err3 {
+		return false, 0
+	} else {
+		if RowsAffected == 0 {
+			return false, 0
+		}
+	}
+	return true, int64(lastInserId)
+`
 	return ret
 }
 

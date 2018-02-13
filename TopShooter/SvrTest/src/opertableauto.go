@@ -18,6 +18,32 @@ func check(e error) {
 	}
 }
 
+func toString(a interface{}) string{
+	
+	 if  v,p:=a.(int);p{
+	 	return strconv.Itoa(v)
+	 }
+	
+	if v,p:=a.(float64);  p{
+	 return strconv.FormatFloat(v,'f', -1, 64)
+	}
+	
+	if v,p:=a.(float32); p {
+		return strconv.FormatFloat(float64(v),'f', -1, 32)
+	}
+	
+	 if v,p:=a.(int16); p { 
+	 	return strconv.Itoa(int(v))
+	 }
+	  if v,p:=a.(uint); p { 
+	 	return strconv.Itoa(int(v))
+	 }
+	  if v,p:=a.(int32); p { 
+	 	return strconv.Itoa(int(v))
+	 }
+	return "wrong"
+}
+
 func init(){
 	client = redis.NewClient(redisOptions())
 	client.FlushDB()
@@ -69,21 +95,21 @@ func Read_t_account(key string)(result map[string][string]){
 
 
 //添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,否则返回false
-func Add_t_account(contentJson string) bool{
+func Add_t_account(contentJson string) (bool, int64){
 	var contentMaps map[string]interface{}
 	err := json.Unmarshal(contentJson, &contentMaps)
 	if err == nil {
-		return false
+		return false, 0
 	}
     tableKey, isOk := contentMaps["accid"]
 	if isOk == false{
-		return false
+		return false, 0
 	}
     redisKey := t_account+":"+tableKey
 
 	isExsit, _ := client.Exists(redisKey)
 	if isExsit == true {
-		return false
+		return false, 0
 	}
 	
 	//Write to Redis
@@ -132,8 +158,49 @@ func Add_t_account(contentJson string) bool{
         client.HSet(redisKey, "gameid", "")
     }
 
-    return true
-}
+	//Write to Mysql!
+	keys := "("
+	values := "("
+	for k, v in range(contentMaps){
+		if keys != "("{
+			keys = keys + ","
+		}
+		keys = keys + k
+		if values != "("{
+			values = values + ","
+		}
+		switch vtype:=v.(type){
+			case string:
+				values = values + "\"" + v + "\""
+			default:
+				values = values + toString(v)
+		}
+	}
+	
+	keys = keys + ")"
+	values = values + ")"	
+    tableNames := "t_account"
+	sql := fmt.Sprintf("insert into %s (%s) values (%s)", tableNames, keys, values)
+	ret1, err1 := dbsvr.db.Exec(sql)
+	if err1 != nil {
+		log.Error("exec:%s failed!", sql)
+		(*result).Result = -1
+
+		(*result).ErrorMsg = err1.Error()
+		return false, 0
+	}
+	lastInserId := 0
+	if LastInsertId, err2 := ret1.LastInsertId(); nil == err2 {
+		lastInserId = LastInsertId
+	}
+	if RowsAffected, err3 := ret1.RowsAffected(); nil != err3 {
+		return false, 0
+	} else {
+		if RowsAffected == 0 {
+			return false, 0
+		}
+	}
+	return true, int64(lastInserId)
 
 
 func Read_t_role(key string)(result map[string][string]){
@@ -186,21 +253,21 @@ func Read_t_role(key string)(result map[string][string]){
 
 
 //添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,否则返回false
-func Add_t_role(contentJson string) bool{
+func Add_t_role(contentJson string) (bool, int64){
 	var contentMaps map[string]interface{}
 	err := json.Unmarshal(contentJson, &contentMaps)
 	if err == nil {
-		return false
+		return false, 0
 	}
     tableKey, isOk := contentMaps["roleid"]
 	if isOk == false{
-		return false
+		return false, 0
 	}
     redisKey := t_role+":"+tableKey
 
 	isExsit, _ := client.Exists(redisKey)
 	if isExsit == true {
-		return false
+		return false, 0
 	}
 	
 	//Write to Redis
@@ -305,8 +372,49 @@ func Add_t_role(contentJson string) bool{
         client.HSet(redisKey, "gold", "")
     }
 
-    return true
-}
+	//Write to Mysql!
+	keys := "("
+	values := "("
+	for k, v in range(contentMaps){
+		if keys != "("{
+			keys = keys + ","
+		}
+		keys = keys + k
+		if values != "("{
+			values = values + ","
+		}
+		switch vtype:=v.(type){
+			case string:
+				values = values + "\"" + v + "\""
+			default:
+				values = values + toString(v)
+		}
+	}
+	
+	keys = keys + ")"
+	values = values + ")"	
+    tableNames := "t_role"
+	sql := fmt.Sprintf("insert into %s (%s) values (%s)", tableNames, keys, values)
+	ret1, err1 := dbsvr.db.Exec(sql)
+	if err1 != nil {
+		log.Error("exec:%s failed!", sql)
+		(*result).Result = -1
+
+		(*result).ErrorMsg = err1.Error()
+		return false, 0
+	}
+	lastInserId := 0
+	if LastInsertId, err2 := ret1.LastInsertId(); nil == err2 {
+		lastInserId = LastInsertId
+	}
+	if RowsAffected, err3 := ret1.RowsAffected(); nil != err3 {
+		return false, 0
+	} else {
+		if RowsAffected == 0 {
+			return false, 0
+		}
+	}
+	return true, int64(lastInserId)
 
 
 func Read_t_testtable(key string)(result map[string][string]){
@@ -352,21 +460,21 @@ func Read_t_testtable(key string)(result map[string][string]){
 
 
 //添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,否则返回false
-func Add_t_testtable(contentJson string) bool{
+func Add_t_testtable(contentJson string) (bool, int64){
 	var contentMaps map[string]interface{}
 	err := json.Unmarshal(contentJson, &contentMaps)
 	if err == nil {
-		return false
+		return false, 0
 	}
     tableKey, isOk := contentMaps["field1"]
 	if isOk == false{
-		return false
+		return false, 0
 	}
     redisKey := t_testtable+":"+tableKey
 
 	isExsit, _ := client.Exists(redisKey)
 	if isExsit == true {
-		return false
+		return false, 0
 	}
 	
 	//Write to Redis
@@ -422,5 +530,46 @@ func Add_t_testtable(contentJson string) bool{
         client.HSet(redisKey, "field7", "")
     }
 
-    return true
-}
+	//Write to Mysql!
+	keys := "("
+	values := "("
+	for k, v in range(contentMaps){
+		if keys != "("{
+			keys = keys + ","
+		}
+		keys = keys + k
+		if values != "("{
+			values = values + ","
+		}
+		switch vtype:=v.(type){
+			case string:
+				values = values + "\"" + v + "\""
+			default:
+				values = values + toString(v)
+		}
+	}
+	
+	keys = keys + ")"
+	values = values + ")"	
+    tableNames := "t_testtable"
+	sql := fmt.Sprintf("insert into %s (%s) values (%s)", tableNames, keys, values)
+	ret1, err1 := dbsvr.db.Exec(sql)
+	if err1 != nil {
+		log.Error("exec:%s failed!", sql)
+		(*result).Result = -1
+
+		(*result).ErrorMsg = err1.Error()
+		return false, 0
+	}
+	lastInserId := 0
+	if LastInsertId, err2 := ret1.LastInsertId(); nil == err2 {
+		lastInserId = LastInsertId
+	}
+	if RowsAffected, err3 := ret1.RowsAffected(); nil != err3 {
+		return false, 0
+	} else {
+		if RowsAffected == 0 {
+			return false, 0
+		}
+	}
+	return true, int64(lastInserId)
