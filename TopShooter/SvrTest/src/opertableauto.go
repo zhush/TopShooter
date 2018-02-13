@@ -18,30 +18,42 @@ func check(e error) {
 	}
 }
 
+
+
 func toString(a interface{}) string{
 	
-	 if  v,p:=a.(int);p{
+	if  v,p:=a.(int);p{
 	 	return strconv.Itoa(v)
-	 }
+	}
 	
 	if v,p:=a.(float64);  p{
-	 return strconv.FormatFloat(v,'f', -1, 64)
+	 	return strconv.FormatFloat(v,'f', -1, 64)
 	}
 	
 	if v,p:=a.(float32); p {
 		return strconv.FormatFloat(float64(v),'f', -1, 32)
 	}
 	
-	 if v,p:=a.(int16); p { 
-	 	return strconv.Itoa(int(v))
-	 }
-	  if v,p:=a.(uint); p { 
-	 	return strconv.Itoa(int(v))
-	 }
-	  if v,p:=a.(int32); p { 
-	 	return strconv.Itoa(int(v))
-	 }
+	if v,p:=a.(int16); p { 
+		return strconv.Itoa(int(v))
+	}
+	if v,p:=a.(uint); p { 
+		return strconv.Itoa(int(v))
+	}
+	if v,p:=a.(int32); p { 
+		return strconv.Itoa(int(v))
+	}
 	return "wrong"
+}
+
+
+func sqlValueStr(a interface{}) string{
+	switch vtype:=a.(type){
+		case string:
+			return "'" + a + "'"  
+		default:
+			return toString(a)
+	}
 }
 
 func init(){
@@ -94,7 +106,7 @@ func Read_t_account(key string)(result map[string][string]){
 }
 
 
-//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,否则返回false
+//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,和自增的id, 否则返回false, 0
 func Add_t_account(contentJson string) (bool, int64){
 	var contentMaps map[string]interface{}
 	err := json.Unmarshal(contentJson, &contentMaps)
@@ -184,9 +196,53 @@ func Add_t_account(contentJson string) (bool, int64){
 	ret1, err1 := dbsvr.db.Exec(sql)
 	if err1 != nil {
 		log.Error("exec:%s failed!", sql)
-		(*result).Result = -1
+		return false, 0
+	}
+	lastInserId := 0
+	if LastInsertId, err2 := ret1.LastInsertId(); nil == err2 {
+		lastInserId = LastInsertId
+	}
+	if RowsAffected, err3 := ret1.RowsAffected(); nil != err3 {
+		return false, 0
+	} else {
+		if RowsAffected == 0 {
+			return false, 0
+		}
+	}
+	return true, int64(lastInserId)
 
-		(*result).ErrorMsg = err1.Error()
+
+//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,和自增的id, 否则返回false, 0
+func Update_t_account(key string, contentJson string)bool{
+	var contentMaps map[string]interface{}
+	err := json.Unmarshal(contentJson, &contentMaps)
+	if err == nil {
+		return false, 0
+	}
+    redisKey := t_account+":"+key
+	isExsit, _ := client.Exists(redisKey)
+	if isExsit == false {
+		return false
+	}
+	//更新redis
+	for k, v in range(contentMaps){
+		client.HSet(redisKey, k, v)
+	}
+	
+	//Write to Mysql!
+	keyvalues := ""
+	for k, v in range(contentMaps){
+		if keyvalues != ""{
+			keyvalues = keyvalues + ","
+		}
+		keyvalues = keyvalues + k + " = " + toString(v)
+	}
+    conditoins := fmt.Sprintf("accid = %s",sqlValueStr(key))
+    tableNames := "t_account"
+
+	sql := fmt.Sprintf("update from  %s  set(%s) where (%s)", tableNames, keyvalues, conditions)
+	ret1, err1 := dbsvr.db.Exec(sql)
+	if err1 != nil {
 		return false, 0
 	}
 	lastInserId := 0
@@ -252,7 +308,7 @@ func Read_t_role(key string)(result map[string][string]){
 }
 
 
-//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,否则返回false
+//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,和自增的id, 否则返回false, 0
 func Add_t_role(contentJson string) (bool, int64){
 	var contentMaps map[string]interface{}
 	err := json.Unmarshal(contentJson, &contentMaps)
@@ -398,9 +454,53 @@ func Add_t_role(contentJson string) (bool, int64){
 	ret1, err1 := dbsvr.db.Exec(sql)
 	if err1 != nil {
 		log.Error("exec:%s failed!", sql)
-		(*result).Result = -1
+		return false, 0
+	}
+	lastInserId := 0
+	if LastInsertId, err2 := ret1.LastInsertId(); nil == err2 {
+		lastInserId = LastInsertId
+	}
+	if RowsAffected, err3 := ret1.RowsAffected(); nil != err3 {
+		return false, 0
+	} else {
+		if RowsAffected == 0 {
+			return false, 0
+		}
+	}
+	return true, int64(lastInserId)
 
-		(*result).ErrorMsg = err1.Error()
+
+//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,和自增的id, 否则返回false, 0
+func Update_t_role(key string, contentJson string)bool{
+	var contentMaps map[string]interface{}
+	err := json.Unmarshal(contentJson, &contentMaps)
+	if err == nil {
+		return false, 0
+	}
+    redisKey := t_role+":"+key
+	isExsit, _ := client.Exists(redisKey)
+	if isExsit == false {
+		return false
+	}
+	//更新redis
+	for k, v in range(contentMaps){
+		client.HSet(redisKey, k, v)
+	}
+	
+	//Write to Mysql!
+	keyvalues := ""
+	for k, v in range(contentMaps){
+		if keyvalues != ""{
+			keyvalues = keyvalues + ","
+		}
+		keyvalues = keyvalues + k + " = " + toString(v)
+	}
+    conditoins := fmt.Sprintf("roleid = %s",sqlValueStr(key))
+    tableNames := "t_role"
+
+	sql := fmt.Sprintf("update from  %s  set(%s) where (%s)", tableNames, keyvalues, conditions)
+	ret1, err1 := dbsvr.db.Exec(sql)
+	if err1 != nil {
 		return false, 0
 	}
 	lastInserId := 0
@@ -459,7 +559,7 @@ func Read_t_testtable(key string)(result map[string][string]){
 }
 
 
-//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,否则返回false
+//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,和自增的id, 否则返回false, 0
 func Add_t_testtable(contentJson string) (bool, int64){
 	var contentMaps map[string]interface{}
 	err := json.Unmarshal(contentJson, &contentMaps)
@@ -556,9 +656,53 @@ func Add_t_testtable(contentJson string) (bool, int64){
 	ret1, err1 := dbsvr.db.Exec(sql)
 	if err1 != nil {
 		log.Error("exec:%s failed!", sql)
-		(*result).Result = -1
+		return false, 0
+	}
+	lastInserId := 0
+	if LastInsertId, err2 := ret1.LastInsertId(); nil == err2 {
+		lastInserId = LastInsertId
+	}
+	if RowsAffected, err3 := ret1.RowsAffected(); nil != err3 {
+		return false, 0
+	} else {
+		if RowsAffected == 0 {
+			return false, 0
+		}
+	}
+	return true, int64(lastInserId)
 
-		(*result).ErrorMsg = err1.Error()
+
+//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,和自增的id, 否则返回false, 0
+func Update_t_testtable(key string, contentJson string)bool{
+	var contentMaps map[string]interface{}
+	err := json.Unmarshal(contentJson, &contentMaps)
+	if err == nil {
+		return false, 0
+	}
+    redisKey := t_testtable+":"+key
+	isExsit, _ := client.Exists(redisKey)
+	if isExsit == false {
+		return false
+	}
+	//更新redis
+	for k, v in range(contentMaps){
+		client.HSet(redisKey, k, v)
+	}
+	
+	//Write to Mysql!
+	keyvalues := ""
+	for k, v in range(contentMaps){
+		if keyvalues != ""{
+			keyvalues = keyvalues + ","
+		}
+		keyvalues = keyvalues + k + " = " + toString(v)
+	}
+    conditoins := fmt.Sprintf("field1 = %s",sqlValueStr(key))
+    tableNames := "t_testtable"
+
+	sql := fmt.Sprintf("update from  %s  set(%s) where (%s)", tableNames, keyvalues, conditions)
+	ret1, err1 := dbsvr.db.Exec(sql)
+	if err1 != nil {
 		return false, 0
 	}
 	lastInserId := 0

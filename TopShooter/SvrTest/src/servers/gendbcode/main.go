@@ -195,6 +195,8 @@ func check(e error) {
 	}
 }
 
+
+
 func toString(a interface{}) string{
 	
 	if  v,p:=a.(int);p{
@@ -219,6 +221,16 @@ func toString(a interface{}) string{
 		return strconv.Itoa(int(v))
 	}
 	return "wrong"
+}
+
+
+func sqlValueStr(a interface{}) string{
+	switch vtype:=a.(type){
+		case string:
+			return "'" + a + "'"  
+		default:
+			return toString(a)
+	}
 }
 
 func init(){
@@ -375,9 +387,6 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 	ret1, err1 := dbsvr.db.Exec(sql)
 	if err1 != nil {
 		log.Error("exec:%s failed!", sql)
-		(*result).Result = -1
-
-		(*result).ErrorMsg = err1.Error()
 		return false, 0
 	}
 	lastInserId := 0
@@ -397,7 +406,65 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 }
 
 func GenerateTableUpdateFunction(tableInfo *TableInfo) string {
-	return ""
+
+	tableName := tableInfo.TableName
+	keyName := tableInfo.TableFields[0].FieldName
+	//keyType := tableInfo.TableFields[0].FieldType
+
+	ret := "\n\n"
+	ret = ret + "//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,和自增的id, 否则返回false, 0\n"
+	ret = ret + "func Update_" + tableName + "(key string, contentJson string)bool{"
+	ret = ret + `
+	var contentMaps map[string]interface{}
+	err := json.Unmarshal(contentJson, &contentMaps)
+	if err == nil {
+		return false, 0
+	}
+`
+	ret = ret + "    redisKey := " + tableName + "+\":\"+key"
+	ret = ret + `
+	isExsit, _ := client.Exists(redisKey)
+	if isExsit == false {
+		return false
+	}
+	//更新redis
+	for k, v in range(contentMaps){
+		client.HSet(redisKey, k, v)
+	}
+	`
+
+	ret = ret + `
+	//Write to Mysql!
+	keyvalues := ""
+	for k, v in range(contentMaps){
+		if keyvalues != ""{
+			keyvalues = keyvalues + ","
+		}
+		keyvalues = keyvalues + k + " = " + toString(v)
+	}
+`
+	ret = ret + "    conditoins := fmt.Sprintf(\"" + keyName + " = %s\"," + "sqlValueStr(key))\n"
+	ret = ret + fmt.Sprintf("    tableNames := \"%s\"\n", tableName)
+	ret = ret + `
+	sql := fmt.Sprintf("update from  %s  set(%s) where (%s)", tableNames, keyvalues, conditions)
+	ret1, err1 := dbsvr.db.Exec(sql)
+	if err1 != nil {
+		return false, 0
+	}
+	lastInserId := 0
+	if LastInsertId, err2 := ret1.LastInsertId(); nil == err2 {
+		lastInserId = LastInsertId
+	}
+	if RowsAffected, err3 := ret1.RowsAffected(); nil != err3 {
+		return false, 0
+	} else {
+		if RowsAffected == 0 {
+			return false, 0
+		}
+	}
+	return true, int64(lastInserId)
+`
+	return ret
 }
 
 func GenerateTableRemoveFunction(tableInfo *TableInfo) string {
