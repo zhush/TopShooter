@@ -11,7 +11,7 @@ var Conf map[string]interface{}
 func init() {
 	data, err := ioutil.ReadFile("config/loginserver.json")
 	if err != nil {
-		log.Fatal("Load conf/server.json failed! %v", err)
+		log.Fatal("Load conf/loginserver.json failed! %v", err)
 		return
 	}
 

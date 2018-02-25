@@ -11,7 +11,7 @@ var DBConf map[string]interface{}
 func init() {
 	data, err := ioutil.ReadFile("config/dbserver.json")
 	if err != nil {
-		log.Fatal("Load conf/server.json failed! %v", err)
+		log.Fatal("Load config/dbserver.json failed! %v", err)
 		return
 	}
 

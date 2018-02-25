@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	log "libs/log"
 	slog "log"
 	"os"
@@ -9,11 +10,13 @@ import (
 )
 
 func init() {
+	fmt.Println("Call dbserver init function")
 	mlog, _ := log.New("debug", "./ylog", slog.Ltime|slog.Ldate, "dbmgr")
 	log.Export(mlog)
 }
 
 func main() {
+	fmt.Println("Start Call app.App.Run")
 	app.App.Run()
 	//close
 	c := make(chan os.Signal, 1)

@@ -60,7 +60,7 @@ func main() {
 		tableList.PushBack(&TableInfo{tableNames[i], QueryTableAllFieldNames(db, tableNames[i], dbname)})
 	}
 
-	WriteDatabaseFiles(tableList, "../../opertableauto.go")
+	WriteDatabaseFiles(tableList, "../dbserver/app/opertableauto.go")
 
 	for e := tableList.Front(); e != nil; e = e.Next() {
 		//fmt.Println(e.Value)
@@ -383,7 +383,7 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 `
 	ret = ret + fmt.Sprintf("    tableNames := \"%s\"", tableName)
 	ret = ret + `
-	sql := fmt.Sprintf("insert into %s (%s) values (%s)", tableNames, keys, values)
+	sql := fmt.Sprintf("insert into %s  %s  values  %s ", tableNames, keys, values)
 	ret1, err1 := dbsvr.db.Exec(sql)
 	if err1 != nil {
 		log.Error("exec:%s failed!", sql)
@@ -413,7 +413,7 @@ func GenerateTableUpdateFunction(tableInfo *TableInfo) string {
 
 	ret := "\n\n"
 	ret = ret + "//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,和自增的id, 否则返回false, 0\n"
-	ret = ret + "func Update_" + tableName + "(key string, contentJson string)bool{"
+	ret = ret + "func Update_" + tableName + "(key string, contentJson string)(bool, int){"
 	ret = ret + `
 	var contentMaps map[string]interface{}
 	err := json.Unmarshal(contentJson, &contentMaps)
@@ -425,7 +425,7 @@ func GenerateTableUpdateFunction(tableInfo *TableInfo) string {
 	ret = ret + `
 	isExsit, _ := client.Exists(redisKey)
 	if isExsit == false {
-		return false
+		return false, 0
 	}
 	//更新redis
 	for k, v in range(contentMaps){
@@ -468,5 +468,47 @@ func GenerateTableUpdateFunction(tableInfo *TableInfo) string {
 }
 
 func GenerateTableRemoveFunction(tableInfo *TableInfo) string {
-	return ""
+
+	tableName := tableInfo.TableName
+	keyName := tableInfo.TableFields[0].FieldName
+	//keyType := tableInfo.TableFields[0].FieldType
+
+	ret := "\n\n"
+	ret = ret + "//删除表记录的方法，传入的是key 字符串,如果删除成功，则返回true,和影响的行数, 否则返回false, 0\n"
+	ret = ret + "func Remove_" + tableName + "(key string)(bool, int){"
+
+	ret = ret + "    redisKey := " + tableName + "+\":\"+key"
+	ret = ret + `
+	isExsit, _ := client.Exists(redisKey)
+	if isExsit == false {
+		return false, 0
+	}
+	//删除redis
+	client.Del(redisKey)
+	`
+
+	ret = ret + `
+	//Delete from Mysql!
+`
+	ret = ret + "    conditoins := fmt.Sprintf(\"" + keyName + " = %s\"," + "sqlValueStr(key))\n"
+	ret = ret + fmt.Sprintf("    tableNames := \"%s\"\n", tableName)
+	ret = ret + `
+	sql := fmt.Sprintf("delete from  %s  where (%s)", tableNames, conditions)
+	ret1, err1 := dbsvr.db.Exec(sql)
+	if err1 != nil {
+		return false, 0
+	}
+
+	var err2 error
+	var RowsAffected int
+	if RowsAffected, err2 = ret1.RowsAffected(); nil != err2 {
+		return false, 0
+	} else {
+		if RowsAffected == 0 {
+			return false, 0
+		}
+	}
+	return true, RowsAffected
+`
+	return ret
 }

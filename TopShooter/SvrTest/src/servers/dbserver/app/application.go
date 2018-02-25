@@ -5,12 +5,13 @@ import (
 	"libs/yrpc"
 	"net/http"
 	"net/rpc"
-	"servers/manageserver/config"
+	"servers/dbserver/config"
 )
 
 var App *Application
 
 func init() {
+	fmt.Fprintln("application init")
 	App = &Application{}
 }
 
@@ -19,14 +20,14 @@ type Application struct {
 }
 
 func (app *Application) Run() {
-	log.Debug("ManagerServer is starting...")
+	log.Debug("Database Server is starting...")
 	app.startRpcService()
-	log.Debug("Manager Server is Running!!")
+	log.Debug("Database Server is Running!!")
 
 }
 
 func (app *Application) startRpcService() {
-	log.Debug("ManagerServer is start rpc service...")
+	log.Debug("Database Server is start rpc service...")
 	app.rpcService = yrpc.NewYService()
 	app.RegisterRpcMethod(app.rpcService)
 	rpc.Register(app.rpcService)

@@ -14,6 +14,7 @@ import (
 var DBMgr *MysqlDB
 
 func init() {
+	fmt.Fprintln("Call mysqldb init")
 	DBMgr = new(MysqlDB)
 	DBMgr.init()
 }
