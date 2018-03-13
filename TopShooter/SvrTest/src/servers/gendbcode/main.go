@@ -26,7 +26,7 @@ type TableInfo struct {
 }
 
 func main() {
-	fmt.Println("Start Generate Code")
+	fmt.Println("Start Generate Code...")
 	var dbhost string = "127.0.0.1:3306"
 	var dbuser string = "root"
 	var dbpass string = "12345678"
