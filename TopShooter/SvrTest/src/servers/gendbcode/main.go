@@ -182,7 +182,6 @@ import (
 	"github.com/go-redis/redis"
 	"database/sql"
 	"encoding/json"
-	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -277,7 +276,7 @@ func GenerateTableReadFunction(tableInfo *TableInfo) string {
 	keyType := tableInfo.TableFields[0].FieldType
 
 	ret := "\n\n"
-	ret = ret + "func Read_" + tableName + "(key string)(result map[string][string]){\n"
+	ret = ret + "func Read_" + tableName + "(key string)(result map[string]string){\n"
 	ret = ret + "    redisKey:= " + tableName + "+\":\"+key\n"
 	ret = ret + "    isExsit, _ := client.Exists(redisKey)\n"
 	ret = ret + "    if isExsit == int64(1) { //在redis中有数据,则直接返回redis的数据\n"
@@ -348,7 +347,6 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 	
 	//Write to Redis
 	var fieldValue string
-	var isExsit bool
 	`
 	for i := 0; i < len(tableInfo.TableFields); i++ {
 		tableField := tableInfo.TableFields[i]

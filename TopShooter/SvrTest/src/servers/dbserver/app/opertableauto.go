@@ -5,7 +5,6 @@ import (
 	"github.com/go-redis/redis"
 	"database/sql"
 	"encoding/json"
-	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -57,7 +56,6 @@ func sqlValueStr(a interface{}) string{
 }
 
 func init(){
-	fmt.Fprintln("Call opertableauto init")
 	client = redis.NewClient(redisOptions())
 	client.FlushDB()
 	var err error
@@ -66,7 +64,7 @@ func init(){
 }
 
 
-func Read_t_account(key string)(result map[string][string]){
+func Read_t_account(key string)(result map[string]string){
     redisKey:= t_account+":"+key
     isExsit, _ := client.Exists(redisKey)
     if isExsit == int64(1) { //在redis中有数据,则直接返回redis的数据
@@ -127,7 +125,6 @@ func Add_t_account(contentJson string) (bool, int64){
 	
 	//Write to Redis
 	var fieldValue string
-	var isExsit bool
 	
     fieldValue, isExsit = contentMaps["accid"])
     if isExsit == true {
@@ -291,7 +288,7 @@ func Remove_t_account(key string)(bool, int){    redisKey := t_account+":"+key
 	return true, RowsAffected
 
 
-func Read_t_role(key string)(result map[string][string]){
+func Read_t_role(key string)(result map[string]string){
     redisKey:= t_role+":"+key
     isExsit, _ := client.Exists(redisKey)
     if isExsit == int64(1) { //在redis中有数据,则直接返回redis的数据
@@ -360,7 +357,6 @@ func Add_t_role(contentJson string) (bool, int64){
 	
 	//Write to Redis
 	var fieldValue string
-	var isExsit bool
 	
     fieldValue, isExsit = contentMaps["roleid"])
     if isExsit == true {
@@ -580,7 +576,7 @@ func Remove_t_role(key string)(bool, int){    redisKey := t_role+":"+key
 	return true, RowsAffected
 
 
-func Read_t_testtable(key string)(result map[string][string]){
+func Read_t_testtable(key string)(result map[string]string){
     redisKey:= t_testtable+":"+key
     isExsit, _ := client.Exists(redisKey)
     if isExsit == int64(1) { //在redis中有数据,则直接返回redis的数据
@@ -642,7 +638,6 @@ func Add_t_testtable(contentJson string) (bool, int64){
 	
 	//Write to Redis
 	var fieldValue string
-	var isExsit bool
 	
     fieldValue, isExsit = contentMaps["field1"])
     if isExsit == true {

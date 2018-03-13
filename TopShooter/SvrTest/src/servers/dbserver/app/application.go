@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"libs/log"
 	"libs/yrpc"
 	"net/http"
@@ -11,7 +12,7 @@ import (
 var App *Application
 
 func init() {
-	fmt.Fprintln("application init")
+	fmt.Println("application init")
 	App = &Application{}
 }
 
