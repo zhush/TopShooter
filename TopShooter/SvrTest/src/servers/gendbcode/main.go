@@ -182,6 +182,7 @@ import (
 	"github.com/go-redis/redis"
 	"database/sql"
 	"encoding/json"
+	"strconv"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -226,7 +227,7 @@ func toString(a interface{}) string{
 func sqlValueStr(a interface{}) string{
 	switch vtype:=a.(type){
 		case string:
-			return "'" + a + "'"  
+			return "'" + toString(a) + "'"  
 		default:
 			return toString(a)
 	}
@@ -277,7 +278,7 @@ func GenerateTableReadFunction(tableInfo *TableInfo) string {
 
 	ret := "\n\n"
 	ret = ret + "func Read_" + tableName + "(key string)(result map[string]string){\n"
-	ret = ret + "    redisKey:= " + tableName + "+\":\"+key\n"
+	ret = ret + "    redisKey:= \"" + tableName + ":\"+key\n"
 	ret = ret + "    isExsit, _ := client.Exists(redisKey)\n"
 	ret = ret + "    if isExsit == int64(1) { //在redis中有数据,则直接返回redis的数据\n"
 	for i := 0; i < len(tableInfo.TableFields); i++ {
@@ -338,7 +339,7 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 		return false, 0
 	}
 `
-	ret = ret + "    redisKey := " + tableName + "+\":\"+tableKey\n"
+	ret = ret + "    redisKey := \"" + tableName + ":\"+tableKey\n"
 	ret = ret + `
 	isExsit, _ := client.Exists(redisKey)
 	if isExsit == true {
@@ -350,7 +351,7 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 	`
 	for i := 0; i < len(tableInfo.TableFields); i++ {
 		tableField := tableInfo.TableFields[i]
-		ret = ret + fmt.Sprintf("\n    fieldValue, isExsit = contentMaps[\"%s\"])\n", tableField.FieldName)
+		ret = ret + fmt.Sprintf("\n    fieldValue, isExsit = contentMaps[\"%s\"]\n", tableField.FieldName)
 		ret = ret + "    if isExsit == true {\n"
 		ret = ret + fmt.Sprintf("        client.HSet(redisKey, \"%s\", fieldValue)\n    }else{\n", tableField.FieldName)
 		ret = ret + fmt.Sprintf("        client.HSet(redisKey, \"%s\", \"\")\n    }\n", tableField.FieldName)
@@ -360,7 +361,7 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 	//Write to Mysql!
 	keys := "("
 	values := "("
-	for k, v in range(contentMaps){
+	for k, v := range(contentMaps){
 		if keys != "("{
 			keys = keys + ","
 		}
@@ -399,6 +400,7 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 		}
 	}
 	return true, int64(lastInserId)
+}
 `
 	return ret
 }
@@ -419,14 +421,14 @@ func GenerateTableUpdateFunction(tableInfo *TableInfo) string {
 		return false, 0
 	}
 `
-	ret = ret + "    redisKey := " + tableName + "+\":\"+key"
+	ret = ret + "    redisKey := \"" + tableName + ":\"+key"
 	ret = ret + `
 	isExsit, _ := client.Exists(redisKey)
 	if isExsit == false {
 		return false, 0
 	}
 	//更新redis
-	for k, v in range(contentMaps){
+	for k, v := range(contentMaps){
 		client.HSet(redisKey, k, v)
 	}
 	`
@@ -434,7 +436,7 @@ func GenerateTableUpdateFunction(tableInfo *TableInfo) string {
 	ret = ret + `
 	//Write to Mysql!
 	keyvalues := ""
-	for k, v in range(contentMaps){
+	for k, v := range(contentMaps){
 		if keyvalues != ""{
 			keyvalues = keyvalues + ","
 		}
@@ -461,6 +463,7 @@ func GenerateTableUpdateFunction(tableInfo *TableInfo) string {
 		}
 	}
 	return true, int64(lastInserId)
+}
 `
 	return ret
 }
@@ -473,9 +476,9 @@ func GenerateTableRemoveFunction(tableInfo *TableInfo) string {
 
 	ret := "\n\n"
 	ret = ret + "//删除表记录的方法，传入的是key 字符串,如果删除成功，则返回true,和影响的行数, 否则返回false, 0\n"
-	ret = ret + "func Remove_" + tableName + "(key string)(bool, int){"
+	ret = ret + "func Remove_" + tableName + "(key string)(bool, int){\n"
 
-	ret = ret + "    redisKey := " + tableName + "+\":\"+key"
+	ret = ret + "    redisKey := \"" + tableName + ":\"+key"
 	ret = ret + `
 	isExsit, _ := client.Exists(redisKey)
 	if isExsit == false {
@@ -507,6 +510,7 @@ func GenerateTableRemoveFunction(tableInfo *TableInfo) string {
 		}
 	}
 	return true, RowsAffected
+}
 `
 	return ret
 }

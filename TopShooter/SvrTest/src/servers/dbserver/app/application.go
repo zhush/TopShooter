@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"net/rpc"
 	"servers/dbserver/config"
+
+	"github.com/go-redis/redis"
 )
 
 var App *Application
@@ -25,6 +27,23 @@ func (app *Application) Run() {
 	app.startRpcService()
 	log.Debug("Database Server is Running!!")
 
+}
+
+func redisOptions() *redis.Options {
+	return &redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	}
+}
+
+func sqlOptions() string {
+	dns := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8",
+		config.Conf["DatabaseUser"].(string),
+		config.Conf["DatabasePwd"].(string),
+		config.Conf["DatabaseAddr"].(string),
+		config.Conf["Database"].(string))
+	return dns
 }
 
 func (app *Application) startRpcService() {
