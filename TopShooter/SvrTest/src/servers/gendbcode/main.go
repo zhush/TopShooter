@@ -279,11 +279,11 @@ func GenerateTableReadFunction(tableInfo *TableInfo) string {
 	ret := "\n\n"
 	ret = ret + "func Read_" + tableName + "(key string)(result map[string]string){\n"
 	ret = ret + "    redisKey:= \"" + tableName + ":\"+key\n"
-	ret = ret + "    isExsit, _ := client.Exists(redisKey)\n"
+	ret = ret + "    isExsit, _ := client.Exists(redisKey).Result()\n"
 	ret = ret + "    if isExsit == int64(1) { //在redis中有数据,则直接返回redis的数据\n"
 	for i := 0; i < len(tableInfo.TableFields); i++ {
 		tableField := tableInfo.TableFields[i]
-		ret = ret + fmt.Sprintf("        result[\"%s\"]=client.HGet(redisKey, \"%s\")\n", tableField.FieldName, tableField.FieldName)
+		ret = ret + fmt.Sprintf("        result[\"%s\"]=client.HGet(redisKey, \"%s\").Val()\n", tableField.FieldName, tableField.FieldName)
 	}
 	ret = ret + "        return\n"
 	ret = ret + "    }\n"
@@ -328,7 +328,7 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 	ret = ret + "func Add_" + tableName + "(contentJson string) (bool, int64){"
 	ret = ret + `
 	var contentMaps map[string]interface{}
-	err := json.Unmarshal(contentJson, &contentMaps)
+	err := json.Unmarshal([]byte(contentJson), &contentMaps)
 	if err == nil {
 		return false, 0
 	}
@@ -339,10 +339,10 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 		return false, 0
 	}
 `
-	ret = ret + "    redisKey := \"" + tableName + ":\"+tableKey\n"
+	ret = ret + "    redisKey := \"" + tableName + ":\"+tableKey.(string)\n"
 	ret = ret + `
-	isExsit, _ := client.Exists(redisKey)
-	if isExsit == true {
+	isExsit, _ := client.Exists(redisKey).Result()
+	if isExsit == int64(1) {
 		return false, 0
 	}
 	
@@ -416,15 +416,15 @@ func GenerateTableUpdateFunction(tableInfo *TableInfo) string {
 	ret = ret + "func Update_" + tableName + "(key string, contentJson string)(bool, int){"
 	ret = ret + `
 	var contentMaps map[string]interface{}
-	err := json.Unmarshal(contentJson, &contentMaps)
+	err := json.Unmarshal([]byte(contentJson), &contentMaps)
 	if err == nil {
 		return false, 0
 	}
 `
 	ret = ret + "    redisKey := \"" + tableName + ":\"+key"
 	ret = ret + `
-	isExsit, _ := client.Exists(redisKey)
-	if isExsit == false {
+	isExsit, _ := client.Exists(redisKey).Result()
+	if isExsit == int64(0) {
 		return false, 0
 	}
 	//更新redis
@@ -480,8 +480,8 @@ func GenerateTableRemoveFunction(tableInfo *TableInfo) string {
 
 	ret = ret + "    redisKey := \"" + tableName + ":\"+key"
 	ret = ret + `
-	isExsit, _ := client.Exists(redisKey)
-	if isExsit == false {
+	isExsit, _ := client.Exists(redisKey).Result()
+	if isExsit == int64(0) {
 		return false, 0
 	}
 	//删除redis
