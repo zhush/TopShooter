@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	fmt.Println("Call dbserver init function")
+	fmt.Println("Call dbserver   init function")
 	mlog, _ := log.New("debug", "./ylog", slog.Ltime|slog.Ldate, "dbmgr")
 	log.Export(mlog)
 }
