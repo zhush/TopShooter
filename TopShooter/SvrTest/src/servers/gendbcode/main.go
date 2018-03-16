@@ -182,6 +182,7 @@ import (
 	"github.com/go-redis/redis"
 	"database/sql"
 	"encoding/json"
+	"libs/log"
 	"strconv"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -225,11 +226,11 @@ func toString(a interface{}) string{
 
 
 func sqlValueStr(a interface{}) string{
-	switch vtype:=a.(type){
+	switch val:=a.(type){
 		case string:
-			return "'" + toString(a) + "'"  
+			return "'" + toString(val) + "'"  
 		default:
-			return toString(a)
+			return toString(val)
 	}
 }
 
@@ -347,12 +348,13 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 	}
 	
 	//Write to Redis
-	var fieldValue string
+	var fieldValue interface{}
+	var keyIsExsit bool
 	`
 	for i := 0; i < len(tableInfo.TableFields); i++ {
 		tableField := tableInfo.TableFields[i]
-		ret = ret + fmt.Sprintf("\n    fieldValue, isExsit = contentMaps[\"%s\"]\n", tableField.FieldName)
-		ret = ret + "    if isExsit == true {\n"
+		ret = ret + fmt.Sprintf("\n    fieldValue, keyIsExsit = contentMaps[\"%s\"]\n", tableField.FieldName)
+		ret = ret + "    if keyIsExsit == true {\n"
 		ret = ret + fmt.Sprintf("        client.HSet(redisKey, \"%s\", fieldValue)\n    }else{\n", tableField.FieldName)
 		ret = ret + fmt.Sprintf("        client.HSet(redisKey, \"%s\", \"\")\n    }\n", tableField.FieldName)
 	}
@@ -369,11 +371,11 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 		if values != "("{
 			values = values + ","
 		}
-		switch vtype:=v.(type){
+		switch val:=v.(type){
 			case string:
-				values = values + "\"" + v + "\""
+				values = values + "\"" + val + "\""
 			default:
-				values = values + toString(v)
+				values = values + toString(val)
 		}
 	}
 	
@@ -383,12 +385,12 @@ func GenerateTableAddFunction(tableInfo *TableInfo) string {
 	ret = ret + fmt.Sprintf("    tableNames := \"%s\"", tableName)
 	ret = ret + `
 	sql := fmt.Sprintf("insert into %s  %s  values  %s ", tableNames, keys, values)
-	ret1, err1 := dbsvr.db.Exec(sql)
+	ret1, err1 := sqldb.Exec(sql)
 	if err1 != nil {
 		log.Error("exec:%s failed!", sql)
 		return false, 0
 	}
-	lastInserId := 0
+	var lastInserId int64 = 0
 	if LastInsertId, err2 := ret1.LastInsertId(); nil == err2 {
 		lastInserId = LastInsertId
 	}
@@ -413,7 +415,7 @@ func GenerateTableUpdateFunction(tableInfo *TableInfo) string {
 
 	ret := "\n\n"
 	ret = ret + "//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,和自增的id, 否则返回false, 0\n"
-	ret = ret + "func Update_" + tableName + "(key string, contentJson string)(bool, int){"
+	ret = ret + "func Update_" + tableName + "(key string, contentJson string)(bool, int64){"
 	ret = ret + `
 	var contentMaps map[string]interface{}
 	err := json.Unmarshal([]byte(contentJson), &contentMaps)
@@ -443,15 +445,15 @@ func GenerateTableUpdateFunction(tableInfo *TableInfo) string {
 		keyvalues = keyvalues + k + " = " + toString(v)
 	}
 `
-	ret = ret + "    conditoins := fmt.Sprintf(\"" + keyName + " = %s\"," + "sqlValueStr(key))\n"
+	ret = ret + "    conditions := fmt.Sprintf(\"" + keyName + " = %s\"," + "sqlValueStr(key))\n"
 	ret = ret + fmt.Sprintf("    tableNames := \"%s\"\n", tableName)
 	ret = ret + `
 	sql := fmt.Sprintf("update from  %s  set(%s) where (%s)", tableNames, keyvalues, conditions)
-	ret1, err1 := dbsvr.db.Exec(sql)
+	ret1, err1 := sqldb.Exec(sql)
 	if err1 != nil {
 		return false, 0
 	}
-	lastInserId := 0
+	var lastInserId int64 = 0
 	if LastInsertId, err2 := ret1.LastInsertId(); nil == err2 {
 		lastInserId = LastInsertId
 	}
@@ -476,7 +478,7 @@ func GenerateTableRemoveFunction(tableInfo *TableInfo) string {
 
 	ret := "\n\n"
 	ret = ret + "//删除表记录的方法，传入的是key 字符串,如果删除成功，则返回true,和影响的行数, 否则返回false, 0\n"
-	ret = ret + "func Remove_" + tableName + "(key string)(bool, int){\n"
+	ret = ret + "func Remove_" + tableName + "(key string)(bool, int64){\n"
 
 	ret = ret + "    redisKey := \"" + tableName + ":\"+key"
 	ret = ret + `
@@ -491,17 +493,17 @@ func GenerateTableRemoveFunction(tableInfo *TableInfo) string {
 	ret = ret + `
 	//Delete from Mysql!
 `
-	ret = ret + "    conditoins := fmt.Sprintf(\"" + keyName + " = %s\"," + "sqlValueStr(key))\n"
+	ret = ret + "    conditions := fmt.Sprintf(\"" + keyName + " = %s\"," + "sqlValueStr(key))\n"
 	ret = ret + fmt.Sprintf("    tableNames := \"%s\"\n", tableName)
 	ret = ret + `
 	sql := fmt.Sprintf("delete from  %s  where (%s)", tableNames, conditions)
-	ret1, err1 := dbsvr.db.Exec(sql)
+	ret1, err1 := sqldb.Exec(sql)
 	if err1 != nil {
 		return false, 0
 	}
 
 	var err2 error
-	var RowsAffected int
+	var RowsAffected int64 = 0
 	if RowsAffected, err2 = ret1.RowsAffected(); nil != err2 {
 		return false, 0
 	} else {
