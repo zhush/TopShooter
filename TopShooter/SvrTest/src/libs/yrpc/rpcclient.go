@@ -12,6 +12,7 @@ type YClient struct {
 	isRunning  bool
 	mutex      sync.Mutex
 	remoteAddr string
+	Connected  chan int
 }
 
 func NewYClient(addr string) *YClient {
@@ -19,6 +20,7 @@ func NewYClient(addr string) *YClient {
 	client.remoteAddr = addr
 	client.isRunning = false
 	client.init()
+	client.Connected = make(chan int, 1)
 	return client
 }
 
@@ -35,6 +37,7 @@ func (self *YClient) init() {
 			} else {
 				self.isRunning = true
 				self.mutex.Unlock()
+				self.Connected <- 1
 				break
 			}
 		}
