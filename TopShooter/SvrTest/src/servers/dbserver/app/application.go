@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"libs/log"
 	"libs/yrpc"
-	"net/http"
-	"net/rpc"
 	"servers/dbserver/config"
 
 	"github.com/go-redis/redis"
@@ -48,17 +46,10 @@ func sqlOptions() string {
 
 func (app *Application) startRpcService() {
 	log.Debug("Database Server is start rpc service...")
-	app.rpcService = yrpc.NewYService()
+	log.Debug("ManagerServer is start rpc service...")
+	app.rpcService = yrpc.NewYService(config.Conf["Addr"].(string))
 	app.RegisterRpcMethod(app.rpcService)
-	rpc.Register(app.rpcService)
-	rpc.HandleHTTP()
-	go func() {
-		log.Debug("Listening:%s", config.Conf["Addr"])
-		err := http.ListenAndServe(config.Conf["Addr"].(string), nil)
-		if err != nil {
-			log.Fatal("ListenAndServer Failed:%s", err.Error())
-		}
-	}()
+	yrpc.ServiceStartRun(app.rpcService)
 }
 
 //注册供其他服调用的method.

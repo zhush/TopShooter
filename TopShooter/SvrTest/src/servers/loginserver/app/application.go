@@ -4,10 +4,9 @@ import (
 	"libs/log"
 	"libs/net"
 	"libs/util"
-	"net/rpc"
+	"libs/yrpc"
 	"servers/loginserver/config"
 	"sync"
-	"time"
 )
 
 var App *Application
@@ -19,7 +18,7 @@ func init() {
 type Application struct {
 	netServer *net.TCPServer
 	players   map[net.Conn]*ClientPlayer
-	dbconn    *rpc.Client
+	dbServer  *yrpc.YClient
 	dbmutex   sync.Mutex
 	dbIsReady bool
 }
@@ -47,36 +46,14 @@ func (app *Application) Run() {
 
 //连接db
 func (app *Application) tryConnectDB() {
-	go func() {
-		dbAddr := config.Conf["DBAddr"].(string)
-		for {
-			var err error
-			app.dbmutex.Lock()
-			app.dbconn, err = rpc.DialHTTP("tcp", dbAddr)
-			app.dbmutex.Unlock()
-			if err != nil {
-				log.Debug("cannot connect db(%s), error:%s, try after 1 second!!", dbAddr, err.Error())
-				time.Sleep(1 * time.Second)
-			} else {
-				log.Debug("connect db(%s), succeed!!", dbAddr)
-				break
-			}
-		}
-	}()
+	log.Debug("Start Ready To connect DBServer")
+	app.dbServer = yrpc.NewYClient(config.Conf["DBAddr"].(string), "DBManager")
+	<-app.dbServer.Connected
+	log.Debug("Succeed connect DBServer")
 }
 
 func (app *Application) DBIsReady() bool {
-	if app.dbIsReady == true {
-		return true
-	}
-	isReady := false
-	app.dbmutex.Lock()
-	isReady = app.dbconn != nil
-	app.dbmutex.Unlock()
-	if isReady == true {
-		app.dbIsReady = true
-	}
-	return app.dbIsReady
+	return app.dbServer.IsRunning()
 }
 
 //关闭玩家

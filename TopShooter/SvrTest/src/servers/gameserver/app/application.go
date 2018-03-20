@@ -50,7 +50,7 @@ func (app *Application) Close() {
 
 //连接管理服务器
 func (app *Application) tryConnectManager() {
-	app.managerServer = yrpc.NewYClient(config.Conf["ManagerAddr"].(string))
+	app.managerServer = yrpc.NewYClient(config.Conf["ManagerAddr"].(string), "ManagerServer")
 	<-app.managerServer.Connected
 	log.Debug("Connected Manager Server Succeed")
 	log.Debug("Start Register To Manager Server")

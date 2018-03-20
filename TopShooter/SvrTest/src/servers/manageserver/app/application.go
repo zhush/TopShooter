@@ -3,7 +3,6 @@ package app
 import (
 	"libs/log"
 	"libs/yrpc"
-	"net/http"
 	"net/rpc"
 	"servers/manageserver/config"
 )
@@ -28,17 +27,9 @@ func (app *Application) Run() {
 
 func (app *Application) startRpcService() {
 	log.Debug("ManagerServer is start rpc service...")
-	app.rpcService = yrpc.NewYService()
+	app.rpcService = yrpc.NewYService(config.Conf["Addr"].(string))
 	app.RegisterRpcMethod(app.rpcService)
-	rpc.Register(app.rpcService)
-	rpc.HandleHTTP()
-	go func() {
-		log.Debug("Listening:%s", config.Conf["Addr"])
-		err := http.ListenAndServe(config.Conf["Addr"].(string), nil)
-		if err != nil {
-			log.Fatal("ListenAndServer Failed:%s", err.Error())
-		}
-	}()
+	yrpc.ServiceStartRun(app.rpcService)
 }
 
 //注册供其他服调用的method.

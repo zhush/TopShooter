@@ -14,6 +14,7 @@ func registerAllHandlers(service *yrpc.YService) {
 }
 
 func ReadTable(reqJsonContent string) (isOk bool, hasResponse bool, responseJson string) {
+	log.Debug("Call ReadTable, reqJson:%s", reqJsonContent)
 	isOk = true
 	hasResponse = false
 

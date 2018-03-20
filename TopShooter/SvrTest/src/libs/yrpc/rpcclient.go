@@ -13,12 +13,14 @@ type YClient struct {
 	mutex      sync.Mutex
 	remoteAddr string
 	Connected  chan int
+	serverName string
 }
 
-func NewYClient(addr string) *YClient {
+func NewYClient(addr string, name string) *YClient {
 	client := &YClient{}
 	client.remoteAddr = addr
 	client.isRunning = false
+	client.serverName = name
 	client.init()
 	client.Connected = make(chan int, 1)
 	return client
@@ -31,7 +33,7 @@ func (self *YClient) init() {
 			self.mutex.Lock()
 			self.conn, err = rpc.DialHTTP("tcp", self.remoteAddr)
 			if err != nil {
-				log.Debug("cannot connect Manager(%s), error:%s, try after 1 second!!", self.remoteAddr, err.Error())
+				log.Debug("cannot connect %s(%s), error:%s, try after 1 second!!", self.serverName, self.remoteAddr, err.Error())
 				self.mutex.Unlock()
 				time.Sleep(1 * time.Second)
 			} else {
