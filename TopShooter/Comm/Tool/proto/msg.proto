@@ -1,0 +1,74 @@
+syntax = "proto2";
+package msg;
+
+enum MSG_ID
+{
+    ELogin_Req = 1001;
+    ELogin_Ack = 1002;
+}
+
+//登录结果
+enum ELoginResult
+{
+    Succeed                     = 0;    //登录成功
+    InvalidAccOrPwd             = 1;    //无效的账户或密码
+    ServerClosed                = 2;    //服务器关闭
+    
+}
+
+//登录的平台
+enum EPlatForm
+{
+    Android                     = 0;    //Android
+    Ios                         = 1;    //IOS
+    Windows                     = 2;    //Windows
+}
+
+//玩家登录请求
+message CS_LoginReq
+{
+    required        string          AccName                 = 1;
+    required        string          AccPassword             = 2;
+    required        EPlatForm       PlatForm                = 3;
+}
+
+//玩家基本信息
+message RoleBaseInfo
+{
+    required        string          NickName                = 1;
+    required        int32           TemplateId              = 2;
+    required        int32           Level                   = 3;
+    required        int32           Sex                     = 4;
+    required        int64           Gold                    = 5;
+}
+
+//玩家登录的回应
+message SC_LoginResponse
+{
+    required    ELoginResult        LoginResult             = 1;
+    repeated    RoleBaseInfo        PlayerBaseInfo          = 2;   
+}
+
+//创建角色
+message CS_CreateRoleReq
+{
+    required        string          NickName                = 1;
+    required        int32           TemplateId              = 2;
+    required        int32           Sex                     = 3;
+}
+
+
+enum EResultCreateRole
+{
+    eSucceed            = 0;        //创建成果
+    eNicknameExsists    = 1;        //昵称重复
+    eRoleCountLimit     = 2;        //超过角色最大数量
+    eUnknownError       = 3;        //未知错误;
+}
+
+//创建角色回应
+message SC_CreateRoleAck
+{
+    required        EResultCreateRole  Result               = 1;
+    repeated        RoleBaseInfo       RoleInfo             = 2;
+}
