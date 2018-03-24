@@ -21,7 +21,7 @@ namespace YFUtils
 			}
 
 		}
-		public static T instance(){
+		protected static T instance(){
 			if (_instance == null) {
 				lock (_objBlock)
 				{

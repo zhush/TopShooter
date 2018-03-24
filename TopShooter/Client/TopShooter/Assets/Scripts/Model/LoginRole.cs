@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using PureMVC.Patterns;
 
+
+
 public class LoginRole : Proxy {
 	//登录的账户名称;
 	protected string m_accName = "";
@@ -42,9 +44,9 @@ public class LoginRole : Proxy {
 		string loginInfo = DataStore.Instance.GetKey ("UserLoginInfo");
 		//没有保存登录信息, 则是第一次登陆.
 		if (loginInfo.Length == 0) {
-			this.SetLoginInfo ("Tourist_" + YFUtils.GameUtility.GetUniqueID (), 
-				YFUtils.GameUtility.MD5Encrypt ("123456"),
-				true,
+			this.SetLoginInfo ("test", 
+				YFUtils.GameUtility.MD5Encrypt ("test"),
+				false,
 				0);
 		} else {
 			SimpleJson.JsonObject jsonObject = SimpleJson.SimpleJson.DeserializeObject(loginInfo) as SimpleJson.JsonObject;

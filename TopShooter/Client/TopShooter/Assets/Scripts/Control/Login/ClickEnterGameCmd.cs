@@ -9,12 +9,12 @@ public class ClickEnterGameCmd : SimpleCommand {
 
 	public override void Execute(PureMVC.Interfaces.INotification notification){
 		LoginRole role = Facade.RetrieveProxy (LoginRole.NAME) as LoginRole;
-
-		//模仿服务器消息，设定登录成功!
-		LoginResult loginResult = new LoginResult ();
-		loginResult.LoginAccName = role.AccName;
-		loginResult.Result = 0;
-		Facade.SendNotification (NotifycationConstant.LoginGameResponse, loginResult);
+		//向服务器发送登陆消息
+		msg.CS_LoginReq sendmsg = new msg.CS_LoginReq();
+		sendmsg.AccName = role.AccName;
+		sendmsg.AccPassword = role.AccPwdMD5;
+		sendmsg.PlatForm = msg.EPlatForm.Windows;
+		YFNet.NetManager.Instance.SendMessage ((uint)msg.MSG_ID.ELogin_Req, sendmsg);
 	}
 		
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PureMVC.Patterns;
 using UnityEngine.UI;
+using msg;
 
 public class LoginPanelMediator : Mediator {
 	public new const string NAME = "LoginPanelMediator";
@@ -35,6 +36,12 @@ public class LoginPanelMediator : Mediator {
 			{
 				LoginResult resultInfo = notification.Body as LoginResult;
 				Debug.Log ("Login response!, AccName:" + resultInfo.LoginAccName + " Result:" + resultInfo.Result);
+
+				msg.CS_LoginReq sendmsg = new msg.CS_LoginReq();
+                    sendmsg.AccName = resultInfo.LoginAccName;
+                    sendmsg.AccPassword = "123456";
+                    sendmsg.PlatForm = msg.EPlatForm.Windows;
+                    YFNet.NetManager.Instance.SendMessage ((uint)msg.MSG_ID.ELogin_Req, sendmsg);
 			}
 			break;
 		default:
