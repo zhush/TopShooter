@@ -18,40 +18,15 @@
             <returns>The new instance</returns>
             <exception cref="T:System.NotSupportedException">If the platform does not support constructor-skipping</exception>
         </member>
-        <member name="F:ProtoBuf.BclHelpers.TimestampEpoch">
-            <summary>
-            The default value for dates that are following google.protobuf.Timestamp semantics
-            </summary>
-        </member>
         <member name="M:ProtoBuf.BclHelpers.WriteTimeSpan(System.TimeSpan,ProtoBuf.ProtoWriter)">
             <summary>
-            Writes a TimeSpan to a protobuf stream using protobuf-net's own representation, bcl.TimeSpan
+            Writes a TimeSpan to a protobuf stream
             </summary>
         </member>
         <member name="M:ProtoBuf.BclHelpers.ReadTimeSpan(ProtoBuf.ProtoReader)">
             <summary>
-            Parses a TimeSpan from a protobuf stream using protobuf-net's own representation, bcl.TimeSpan
+            Parses a TimeSpan from a protobuf stream
             </summary>        
-        </member>
-        <member name="M:ProtoBuf.BclHelpers.ReadDuration(ProtoBuf.ProtoReader)">
-            <summary>
-            Parses a TimeSpan from a protobuf stream using the standardized format, google.protobuf.Duration
-            </summary>
-        </member>
-        <member name="M:ProtoBuf.BclHelpers.WriteDuration(System.TimeSpan,ProtoBuf.ProtoWriter)">
-            <summary>
-            Writes a TimeSpan to a protobuf stream using the standardized format, google.protobuf.Duration
-            </summary>
-        </member>
-        <member name="M:ProtoBuf.BclHelpers.ReadTimestamp(ProtoBuf.ProtoReader)">
-            <summary>
-            Parses a DateTime from a protobuf stream using the standardized format, google.protobuf.Timestamp
-            </summary>
-        </member>
-        <member name="M:ProtoBuf.BclHelpers.WriteTimestamp(System.DateTime,ProtoBuf.ProtoWriter)">
-            <summary>
-            Writes a DateTime to a protobuf stream using the standardized format, google.protobuf.Timestamp
-            </summary>
         </member>
         <member name="M:ProtoBuf.BclHelpers.ReadDateTime(ProtoBuf.ProtoReader)">
             <summary>
@@ -60,12 +35,7 @@
         </member>
         <member name="M:ProtoBuf.BclHelpers.WriteDateTime(System.DateTime,ProtoBuf.ProtoWriter)">
             <summary>
-            Writes a DateTime to a protobuf stream, excluding the <c>Kind</c>
-            </summary>
-        </member>
-        <member name="M:ProtoBuf.BclHelpers.WriteDateTimeWithKind(System.DateTime,ProtoBuf.ProtoWriter)">
-            <summary>
-            Writes a DateTime to a protobuf stream, including the <c>Kind</c>
+            Writes a DateTime to a protobuf stream
             </summary>
         </member>
         <member name="M:ProtoBuf.BclHelpers.ReadDecimal(ProtoBuf.ProtoReader)">
@@ -165,6 +135,14 @@
             may be re-used (and thus re-assigned) unexpectedly.
             </summary>
         </member>
+        <member name="T:ProtoBuf.ProtoConverterAttribute">
+            <summary>
+            Indicates that a static member should be considered the same as though
+            were an implicit / explicit conversion operator; in particular, this
+            is useful for conversions that operator syntax does not allow, such as
+            to/from interface types.
+            </summary>
+        </member>
         <member name="T:ProtoBuf.DataFormat">
             <summary>
             Sub-format to use when serializing/deserializing data
@@ -202,383 +180,6 @@
             When applied to a sub-message, indicates that the value should be treated
             as group-delimited.
             </summary>
-        </member>
-        <member name="F:ProtoBuf.DataFormat.WellKnown">
-            <summary>
-            When applied to members of types such as DateTime or TimeSpan, specifies
-            that the "well known" standardized representation should be use; DateTime uses Timestamp,
-            
-            </summary>
-        </member>
-        <member name="T:ProtoBuf.DiscriminatedUnionObject">
-            <summary>Represent multiple types as a union; this is used as part of OneOf -
-            note that it is the caller's responsbility to only read/write the value as the same type</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnionObject.Object">
-            <summary>The value typed as Object</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnionObject.Is(System.Int32)">
-            <summary>Indicates whether the specified discriminator is assigned</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnionObject.#ctor(System.Int32,System.Object)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnionObject.Reset(ProtoBuf.DiscriminatedUnionObject@,System.Int32)">
-            <summary>Reset a value if the specified discriminator is assigned</summary>
-        </member>
-        <member name="T:ProtoBuf.DiscriminatedUnion64">
-            <summary>Represent multiple types as a union; this is used as part of OneOf -
-            note that it is the caller's responsbility to only read/write the value as the same type</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64.Int64">
-            <summary>The value typed as Int64</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64.UInt64">
-            <summary>The value typed as UInt64</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64.Int32">
-            <summary>The value typed as Int32</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64.UInt32">
-            <summary>The value typed as UInt32</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64.Boolean">
-            <summary>The value typed as Boolean</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64.Single">
-            <summary>The value typed as Single</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64.Double">
-            <summary>The value typed as Double</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64.DateTime">
-            <summary>The value typed as DateTime</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64.TimeSpan">
-            <summary>The value typed as TimeSpan</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64.Is(System.Int32)">
-            <summary>Indicates whether the specified discriminator is assigned</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64.#ctor(System.Int32,System.Int64)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64.#ctor(System.Int32,System.Int32)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64.#ctor(System.Int32,System.UInt64)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64.#ctor(System.Int32,System.UInt32)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64.#ctor(System.Int32,System.Single)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64.#ctor(System.Int32,System.Double)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64.#ctor(System.Int32,System.Boolean)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64.#ctor(System.Int32,System.Nullable{System.DateTime})">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64.#ctor(System.Int32,System.Nullable{System.TimeSpan})">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64.Reset(ProtoBuf.DiscriminatedUnion64@,System.Int32)">
-            <summary>Reset a value if the specified discriminator is assigned</summary>
-        </member>
-        <member name="T:ProtoBuf.DiscriminatedUnion128Object">
-            <summary>Represent multiple types as a union; this is used as part of OneOf -
-            note that it is the caller's responsbility to only read/write the value as the same type</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128Object.Int64">
-            <summary>The value typed as Int64</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128Object.UInt64">
-            <summary>The value typed as UInt64</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128Object.Int32">
-            <summary>The value typed as Int32</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128Object.UInt32">
-            <summary>The value typed as UInt32</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128Object.Boolean">
-            <summary>The value typed as Boolean</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128Object.Single">
-            <summary>The value typed as Single</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128Object.Double">
-            <summary>The value typed as Double</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128Object.DateTime">
-            <summary>The value typed as DateTime</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128Object.TimeSpan">
-            <summary>The value typed as TimeSpan</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128Object.Guid">
-            <summary>The value typed as Guid</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128Object.Object">
-            <summary>The value typed as Double</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128Object.Is(System.Int32)">
-            <summary>Indicates whether the specified discriminator is assigned</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128Object.#ctor(System.Int32,System.Int64)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128Object.#ctor(System.Int32,System.Int32)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128Object.#ctor(System.Int32,System.UInt64)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128Object.#ctor(System.Int32,System.UInt32)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128Object.#ctor(System.Int32,System.Single)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128Object.#ctor(System.Int32,System.Double)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128Object.#ctor(System.Int32,System.Boolean)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128Object.#ctor(System.Int32,System.Object)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128Object.#ctor(System.Int32,System.Nullable{System.DateTime})">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128Object.#ctor(System.Int32,System.Nullable{System.TimeSpan})">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128Object.#ctor(System.Int32,System.Nullable{System.Guid})">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128Object.Reset(ProtoBuf.DiscriminatedUnion128Object@,System.Int32)">
-            <summary>Reset a value if the specified discriminator is assigned</summary>
-        </member>
-        <member name="T:ProtoBuf.DiscriminatedUnion128">
-            <summary>Represent multiple types as a union; this is used as part of OneOf -
-            note that it is the caller's responsbility to only read/write the value as the same type</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128.Int64">
-            <summary>The value typed as Int64</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128.UInt64">
-            <summary>The value typed as UInt64</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128.Int32">
-            <summary>The value typed as Int32</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128.UInt32">
-            <summary>The value typed as UInt32</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128.Boolean">
-            <summary>The value typed as Boolean</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128.Single">
-            <summary>The value typed as Single</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128.Double">
-            <summary>The value typed as Double</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128.DateTime">
-            <summary>The value typed as DateTime</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128.TimeSpan">
-            <summary>The value typed as TimeSpan</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion128.Guid">
-            <summary>The value typed as Guid</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128.Is(System.Int32)">
-            <summary>Indicates whether the specified discriminator is assigned</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128.#ctor(System.Int32,System.Int64)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128.#ctor(System.Int32,System.Int32)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128.#ctor(System.Int32,System.UInt64)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128.#ctor(System.Int32,System.UInt32)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128.#ctor(System.Int32,System.Single)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128.#ctor(System.Int32,System.Double)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128.#ctor(System.Int32,System.Boolean)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128.#ctor(System.Int32,System.Nullable{System.DateTime})">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128.#ctor(System.Int32,System.Nullable{System.TimeSpan})">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128.#ctor(System.Int32,System.Nullable{System.Guid})">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion128.Reset(ProtoBuf.DiscriminatedUnion128@,System.Int32)">
-            <summary>Reset a value if the specified discriminator is assigned</summary>
-        </member>
-        <member name="T:ProtoBuf.DiscriminatedUnion64Object">
-            <summary>Represent multiple types as a union; this is used as part of OneOf -
-            note that it is the caller's responsbility to only read/write the value as the same type</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64Object.Int64">
-            <summary>The value typed as Int64</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64Object.UInt64">
-            <summary>The value typed as UInt64</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64Object.Int32">
-            <summary>The value typed as Int32</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64Object.UInt32">
-            <summary>The value typed as UInt32</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64Object.Boolean">
-            <summary>The value typed as Boolean</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64Object.Single">
-            <summary>The value typed as Single</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64Object.Double">
-            <summary>The value typed as Double</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64Object.DateTime">
-            <summary>The value typed as DateTime</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64Object.TimeSpan">
-            <summary>The value typed as TimeSpan</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion64Object.Object">
-            <summary>The value typed as Double</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64Object.Is(System.Int32)">
-            <summary>Indicates whether the specified discriminator is assigned</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64Object.#ctor(System.Int32,System.Int64)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64Object.#ctor(System.Int32,System.Int32)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64Object.#ctor(System.Int32,System.UInt64)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64Object.#ctor(System.Int32,System.UInt32)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64Object.#ctor(System.Int32,System.Single)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64Object.#ctor(System.Int32,System.Double)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64Object.#ctor(System.Int32,System.Boolean)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64Object.#ctor(System.Int32,System.Object)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64Object.#ctor(System.Int32,System.Nullable{System.DateTime})">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64Object.#ctor(System.Int32,System.Nullable{System.TimeSpan})">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion64Object.Reset(ProtoBuf.DiscriminatedUnion64Object@,System.Int32)">
-            <summary>Reset a value if the specified discriminator is assigned</summary>
-        </member>
-        <member name="T:ProtoBuf.DiscriminatedUnion32">
-            <summary>Represent multiple types as a union; this is used as part of OneOf -
-            note that it is the caller's responsbility to only read/write the value as the same type</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion32.Int32">
-            <summary>The value typed as Int32</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion32.UInt32">
-            <summary>The value typed as UInt32</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion32.Boolean">
-            <summary>The value typed as Boolean</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion32.Single">
-            <summary>The value typed as Single</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion32.Is(System.Int32)">
-            <summary>Indicates whether the specified discriminator is assigned</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion32.#ctor(System.Int32,System.Int32)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion32.#ctor(System.Int32,System.UInt32)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion32.#ctor(System.Int32,System.Single)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion32.#ctor(System.Int32,System.Boolean)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion32.Reset(ProtoBuf.DiscriminatedUnion32@,System.Int32)">
-            <summary>Reset a value if the specified discriminator is assigned</summary>
-        </member>
-        <member name="T:ProtoBuf.DiscriminatedUnion32Object">
-            <summary>Represent multiple types as a union; this is used as part of OneOf -
-            note that it is the caller's responsbility to only read/write the value as the same type</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion32Object.Int32">
-            <summary>The value typed as Int32</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion32Object.UInt32">
-            <summary>The value typed as UInt32</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion32Object.Boolean">
-            <summary>The value typed as Boolean</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion32Object.Single">
-            <summary>The value typed as Single</summary>
-        </member>
-        <member name="F:ProtoBuf.DiscriminatedUnion32Object.Object">
-            <summary>The value typed as Double</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion32Object.Is(System.Int32)">
-            <summary>Indicates whether the specified discriminator is assigned</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion32Object.#ctor(System.Int32,System.Int32)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion32Object.#ctor(System.Int32,System.UInt32)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion32Object.#ctor(System.Int32,System.Single)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion32Object.#ctor(System.Int32,System.Boolean)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion32Object.#ctor(System.Int32,System.Object)">
-            <summary>Create a new discriminated union value</summary>
-        </member>
-        <member name="M:ProtoBuf.DiscriminatedUnion32Object.Reset(ProtoBuf.DiscriminatedUnion32Object@,System.Int32)">
-            <summary>Reset a value if the specified discriminator is assigned</summary>
         </member>
         <member name="T:ProtoBuf.Extensible">
             <summary>
@@ -877,16 +478,6 @@
             </summary>
             <returns>The length of the binary stream representing unexpected data.</returns>
         </member>
-        <member name="T:ProtoBuf.IExtensionResettable">
-            <summary>
-            Provides the ability to remove all existing extension data
-            </summary>
-        </member>
-        <member name="M:ProtoBuf.IExtensionResettable.Reset">
-            <summary>
-            Remove all existing extension data
-            </summary>
-        </member>
         <member name="T:ProtoBuf.ImplicitFields">
             <summary>
             Specifies the method used to infer field tags for members of the type
@@ -1130,26 +721,6 @@
             familiar list-like characteristics (enumerable, add, etc)
             </summary>
         </member>
-        <member name="P:ProtoBuf.Meta.MetaType.IsGroup">
-            <summary>
-            Indicates whether this type should always be treated as a "group" (rather than a string-prefixed sub-message)
-            </summary>
-        </member>
-        <member name="T:ProtoBuf.Meta.ProtoSyntax">
-            <summary>
-            Indiate the variant of the protobuf .proto DSL syntax to use
-            </summary>
-        </member>
-        <member name="F:ProtoBuf.Meta.ProtoSyntax.Proto2">
-            <summary>
-            https://developers.google.com/protocol-buffers/docs/proto
-            </summary>
-        </member>
-        <member name="F:ProtoBuf.Meta.ProtoSyntax.Proto3">
-            <summary>
-            https://developers.google.com/protocol-buffers/docs/proto3
-            </summary>
-        </member>
         <member name="T:ProtoBuf.Meta.RuntimeTypeModel">
             <summary>
             Provides protobuf serialization support for a number of types that can be defined at runtime
@@ -1189,16 +760,6 @@
             should be serialized as strings.
             </summary>
         </member>
-        <member name="P:ProtoBuf.Meta.RuntimeTypeModel.IncludeDateTimeKind">
-            <summary>
-            Global switch that determines whether DateTime serialization should include the <c>Kind</c> of the date/time.
-            </summary>
-        </member>
-        <member name="M:ProtoBuf.Meta.RuntimeTypeModel.SerializeDateTimeKind">
-            <summary>
-            Should the <c>Kind</c> be included on date/time values?
-            </summary>
-        </member>
         <member name="P:ProtoBuf.Meta.RuntimeTypeModel.Default">
             <summary>
             The default model, used to support ProtoBuf.Serializer
@@ -1210,13 +771,12 @@
             processed by this model.
             </summary>
         </member>
-        <member name="M:ProtoBuf.Meta.RuntimeTypeModel.GetSchema(System.Type,ProtoBuf.Meta.ProtoSyntax)">
+        <member name="M:ProtoBuf.Meta.RuntimeTypeModel.GetSchema(System.Type)">
             <summary>
             Suggest a .proto definition for the given type
             </summary>
             <param name="type">The type to generate a .proto definition for, or <c>null</c> to generate a .proto that represents the entire model</param>
             <returns>The .proto definition as a string</returns>
-            <param name="syntax">The .proto syntax to use</param>
         </member>
         <member name="P:ProtoBuf.Meta.RuntimeTypeModel.Item(System.Type)">
             <summary>
@@ -1227,7 +787,7 @@
         <member name="M:ProtoBuf.Meta.RuntimeTypeModel.Add(System.Type,System.Boolean)">
             <summary>
             Adds support for an additional type in this model, optionally
-            applying inbuilt patterns. If the type is already known to the
+            appplying inbuilt patterns. If the type is already known to the
             model, the existing type is returned **without** applying
             any additional behaviour.
             </summary>
@@ -1467,11 +1027,6 @@
             Provides protobuf serialization support for a number of types
             </summary>
         </member>
-        <member name="M:ProtoBuf.Meta.TypeModel.SerializeDateTimeKind">
-            <summary>
-            Should the <c>Kind</c> be included on date/time values?
-            </summary>
-        </member>
         <member name="M:ProtoBuf.Meta.TypeModel.MapType(System.Type)">
             <summary>
             Resolve a System.Type to the compiler-specific type
@@ -1482,7 +1037,7 @@
             Resolve a System.Type to the compiler-specific type
             </summary>
         </member>
-        <member name="M:ProtoBuf.Meta.TypeModel.TrySerializeAuxiliaryType(ProtoBuf.ProtoWriter,System.Type,ProtoBuf.DataFormat,System.Int32,System.Object,System.Boolean,System.Object)">
+        <member name="M:ProtoBuf.Meta.TypeModel.TrySerializeAuxiliaryType(ProtoBuf.ProtoWriter,System.Type,ProtoBuf.DataFormat,System.Int32,System.Object,System.Boolean)">
             <summary>
             This is the more "complete" version of Serialize, which handles single instances of mapped types.
             The value is written as a complete field, including field-header and (for sub-objects) a
@@ -1545,22 +1100,6 @@
             original instance.</returns>
         </member>
         <member name="M:ProtoBuf.Meta.TypeModel.DeserializeWithLengthPrefix(System.IO.Stream,System.Object,System.Type,ProtoBuf.PrefixStyle,System.Int32,ProtoBuf.Serializer.TypeResolver,System.Int32@)">
-            <summary>
-            Applies a protocol-buffer stream to an existing instance (or null), using length-prefixed
-            data - useful with network IO.
-            </summary>
-            <param name="type">The type being merged.</param>
-            <param name="value">The existing instance to be modified (can be null).</param>
-            <param name="source">The binary stream to apply to the instance (cannot be null).</param>
-            <param name="style">How to encode the length prefix.</param>
-            <param name="expectedField">The tag used as a prefix to each record (only used with base-128 style prefixes).</param>
-            <param name="resolver">Used to resolve types on a per-field basis.</param>
-            <param name="bytesRead">Returns the number of bytes consumed by this operation (includes length-prefix overheads and any skipped data).</param>
-            <returns>The updated instance; this may be different to the instance argument if
-            either the original instance was null, or the stream defines a known sub-type of the
-            original instance.</returns>
-        </member>
-        <member name="M:ProtoBuf.Meta.TypeModel.DeserializeWithLengthPrefix(System.IO.Stream,System.Object,System.Type,ProtoBuf.PrefixStyle,System.Int32,ProtoBuf.Serializer.TypeResolver,System.Int64@)">
             <summary>
             Applies a protocol-buffer stream to an existing instance (or null), using length-prefixed
             data - useful with network IO.
@@ -1710,32 +1249,7 @@
             either the original instance was null, or the stream defines a known sub-type of the
             original instance.</returns>
         </member>
-        <member name="M:ProtoBuf.Meta.TypeModel.Deserialize(System.IO.Stream,System.Object,System.Type,System.Int64)">
-            <summary>
-            Applies a protocol-buffer stream to an existing instance (which may be null).
-            </summary>
-            <param name="type">The type (including inheritance) to consider.</param>
-            <param name="value">The existing instance to be modified (can be null).</param>
-            <param name="source">The binary stream to apply to the instance (cannot be null).</param>
-            <param name="length">The number of bytes to consume.</param>
-            <returns>The updated instance; this may be different to the instance argument if
-            either the original instance was null, or the stream defines a known sub-type of the
-            original instance.</returns>
-        </member>
         <member name="M:ProtoBuf.Meta.TypeModel.Deserialize(System.IO.Stream,System.Object,System.Type,System.Int32,ProtoBuf.SerializationContext)">
-            <summary>
-            Applies a protocol-buffer stream to an existing instance (which may be null).
-            </summary>
-            <param name="type">The type (including inheritance) to consider.</param>
-            <param name="value">The existing instance to be modified (can be null).</param>
-            <param name="source">The binary stream to apply to the instance (cannot be null).</param>
-            <param name="length">The number of bytes to consume (or -1 to read to the end of the stream).</param>
-            <returns>The updated instance; this may be different to the instance argument if
-            either the original instance was null, or the stream defines a known sub-type of the
-            original instance.</returns>
-            <param name="context">Additional information about this serialization operation.</param>
-        </member>
-        <member name="M:ProtoBuf.Meta.TypeModel.Deserialize(System.IO.Stream,System.Object,System.Type,System.Int64,ProtoBuf.SerializationContext)">
             <summary>
             Applies a protocol-buffer stream to an existing instance (which may be null).
             </summary>
@@ -1759,7 +1273,7 @@
             either the original instance was null, or the stream defines a known sub-type of the
             original instance.</returns>
         </member>
-        <member name="M:ProtoBuf.Meta.TypeModel.TryDeserializeAuxiliaryType(ProtoBuf.ProtoReader,ProtoBuf.DataFormat,System.Int32,System.Type,System.Object@,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Object)">
+        <member name="M:ProtoBuf.Meta.TypeModel.TryDeserializeAuxiliaryType(ProtoBuf.ProtoReader,ProtoBuf.DataFormat,System.Int32,System.Type,System.Object@,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             This is the more "complete" version of Deserialize, which handles single instances of mapped types.
             The value is read as a complete field, including field-header and (for sub-objects) a
@@ -1893,14 +1407,6 @@
             <param name="type">The type to generate a .proto definition for, or <c>null</c> to generate a .proto that represents the entire model</param>
             <returns>The .proto definition as a string</returns>
         </member>
-        <member name="M:ProtoBuf.Meta.TypeModel.GetSchema(System.Type,ProtoBuf.Meta.ProtoSyntax)">
-            <summary>
-            Suggest a .proto definition for the given type
-            </summary>
-            <param name="type">The type to generate a .proto definition for, or <c>null</c> to generate a .proto that represents the entire model</param>
-            <returns>The .proto definition as a string</returns>
-            <param name="syntax">The .proto syntax to use for the operation</param>
-        </member>
         <member name="E:ProtoBuf.Meta.TypeModel.DynamicTypeFormatting">
             <summary>
             Used to provide custom services for writing and parsing type names when using dynamic types. Both parsing and formatting
@@ -1927,11 +1433,6 @@
         <member name="P:ProtoBuf.Meta.ValueMember.Member">
             <summary>
             Gets the member (field/property) which this member relates to.
-            </summary>
-        </member>
-        <member name="P:ProtoBuf.Meta.ValueMember.BackingMember">
-            <summary>
-            Gets the backing member (field/property) which this member relates to
             </summary>
         </member>
         <member name="P:ProtoBuf.Meta.ValueMember.ItemType">
@@ -2007,21 +1508,6 @@
         <member name="P:ProtoBuf.Meta.ValueMember.DynamicType">
             <summary>
             Embeds the type information into the stream, allowing usage with types not known in advance.
-            </summary>
-        </member>
-        <member name="P:ProtoBuf.Meta.ValueMember.IsMap">
-            <summary>
-            Indicates that the member should be treated as a protobuf Map
-            </summary>
-        </member>
-        <member name="P:ProtoBuf.Meta.ValueMember.MapKeyFormat">
-            <summary>
-            Specifies the data-format that should be used for the key, when IsMap is enabled
-            </summary>
-        </member>
-        <member name="P:ProtoBuf.Meta.ValueMember.MapValueFormat">
-            <summary>
-            Specifies the data-format that should be used for the value, when IsMap is enabled
             </summary>
         </member>
         <member name="M:ProtoBuf.Meta.ValueMember.SetSpecified(System.Reflection.MethodInfo,System.Reflection.MethodInfo)">
@@ -2141,11 +1627,6 @@
             as recorded on ProtoMemberAttribute.AsReference
             </summary>
         </member>
-        <member name="P:ProtoBuf.ProtoContractAttribute.IsGroup">
-            <summary>
-            Indicates whether this type should always be treated as a "group" (rather than a string-prefixed sub-message)
-            </summary>
-        </member>
         <member name="P:ProtoBuf.ProtoContractAttribute.EnumPassthru">
             <summary>
             Applies only to enums (not to DTO classes themselves); gets or sets a value indicating that an enum should be treated directly as an int/short/etc, rather
@@ -2155,14 +1636,6 @@
         <member name="P:ProtoBuf.ProtoContractAttribute.EnumPassthruHasValue">
             <summary>
             Has a EnumPassthru value been explicitly set?
-            </summary>
-        </member>
-        <member name="T:ProtoBuf.ProtoConverterAttribute">
-            <summary>
-            Indicates that a static member should be considered the same as though
-            were an implicit / explicit conversion operator; in particular, this
-            is useful for conversions that operator syntax does not allow, such as
-            to/from interface types.
             </summary>
         </member>
         <member name="T:ProtoBuf.ProtoEnumAttribute">
@@ -2272,30 +1745,6 @@
             <summary>
             Specifies whether the inherited sype's sub-message should be
             written with a length-prefix (default), or with group markers.
-            </summary>
-        </member>
-        <member name="T:ProtoBuf.ProtoMapAttribute">
-            <summary>
-            Controls the formatting of elements in a dictionary, and indicates that
-            "map" rules should be used: duplicates *replace* earlier values, rather
-            than throwing an exception
-            </summary>
-        </member>
-        <member name="P:ProtoBuf.ProtoMapAttribute.KeyFormat">
-            <summary>
-            Describes the data-format used to store the key
-            </summary>
-        </member>
-        <member name="P:ProtoBuf.ProtoMapAttribute.ValueFormat">
-            <summary>
-            Describes the data-format used to store the value
-            </summary>
-        </member>
-        <member name="P:ProtoBuf.ProtoMapAttribute.DisableMap">
-            <summary>
-            Disables "map" handling; dictionaries will use ".Add(key,value)" instead of  "[key] = value",
-            which means duplicate keys will cause an exception (instead of retaining the final value); if
-            a proto schema is emitted, it will be produced using "repeated" instead of "map"
             </summary>
         </member>
         <member name="T:ProtoBuf.ProtoMemberAttribute">
@@ -2475,15 +1924,6 @@
             <param name="context">Additional context about this serialization operation</param>
             <param name="length">The number of bytes to read, or -1 to read until the end of the stream</param>
         </member>
-        <member name="M:ProtoBuf.ProtoReader.#ctor(System.IO.Stream,ProtoBuf.Meta.TypeModel,ProtoBuf.SerializationContext,System.Int64)">
-            <summary>
-            Creates a new reader against a stream
-            </summary>
-            <param name="source">The source stream</param>
-            <param name="model">The model to use for serialization; this can be null, but this will impair the ability to deserialize sub-objects</param>
-            <param name="context">Additional context about this serialization operation</param>
-            <param name="length">The number of bytes to read, or -1 to read until the end of the stream</param>
-        </member>
         <member name="P:ProtoBuf.ProtoReader.Context">
             <summary>
             Addition information about this deserialization operation.
@@ -2502,12 +1942,6 @@
             </summary>
         </member>
         <member name="P:ProtoBuf.ProtoReader.Position">
-            <summary>
-            Returns the position of the current reader (note that this is not necessarily the same as the position
-            in the underlying stream, if multiple readers are used on the same stream)
-            </summary>
-        </member>
-        <member name="P:ProtoBuf.ProtoReader.LongPosition">
             <summary>
             Returns the position of the current reader (note that this is not necessarily the same as the position
             in the underlying stream, if multiple readers are used on the same stream)
@@ -2674,13 +2108,7 @@
             reader to be created.
             </summary>
         </member>
-        <member name="M:ProtoBuf.ProtoReader.ReadLongLengthPrefix(System.IO.Stream,System.Boolean,ProtoBuf.PrefixStyle,System.Int32@,System.Int32@)">
-            <summary>
-            Reads the length-prefix of a message from a stream without buffering additional data, allowing a fixed-length
-            reader to be created.
-            </summary>
-        </member>
-        <member name="M:ProtoBuf.ProtoReader.TryReadUInt64Variant(System.IO.Stream,System.UInt64@)">
+        <member name="M:ProtoBuf.ProtoReader.TryReadUInt32Variant(System.IO.Stream,System.UInt32@)">
             <returns>The number of bytes consumed; 0 if no data available</returns>
         </member>
         <member name="M:ProtoBuf.ProtoReader.AppendExtensionData(ProtoBuf.IExtensible)">
@@ -2882,18 +2310,6 @@
             subsequent call to WriteFieldHeader. Only primitive types can be packed.
             </summary>
         </member>
-        <member name="M:ProtoBuf.ProtoWriter.ClearPackedField(System.Int32,ProtoBuf.ProtoWriter)">
-            <summary>
-            Used for packed encoding; explicitly reset the packed field marker; this is not required
-            if using StartSubItem/EndSubItem
-            </summary>
-        </member>
-        <member name="M:ProtoBuf.ProtoWriter.WritePackedPrefix(System.Int32,ProtoBuf.WireType,ProtoBuf.ProtoWriter)">
-            <summary>
-            Used for packed encoding; writes the length prefix using fixed sizes rather than using
-            buffering. Only valid for fixed-32 and fixed-64 encoding.
-            </summary>
-        </member>
         <member name="M:ProtoBuf.ProtoWriter.SetRootObject(System.Object)">
             <summary>
             Specifies a known root object to use during reference-tracked serialization
@@ -2953,13 +2369,6 @@
             <typeparam name="T">The type to generate a .proto definition for</typeparam>
             <returns>The .proto definition as a string</returns>
         </member>
-        <member name="M:ProtoBuf.Serializer.GetProto``1(ProtoBuf.Meta.ProtoSyntax)">
-            <summary>
-            Suggest a .proto definition for the given type
-            </summary>
-            <typeparam name="T">The type to generate a .proto definition for</typeparam>
-            <returns>The .proto definition as a string</returns>
-        </member>
         <member name="M:ProtoBuf.Serializer.DeepClone``1(``0)">
             <summary>
             Create a deep clone of the supplied instance; any sub-items are also cloned.
@@ -2981,14 +2390,6 @@
             Creates a new instance from a protocol-buffer stream
             </summary>
             <typeparam name="T">The type to be created.</typeparam>
-            <param name="source">The binary stream to apply to the new instance (cannot be null).</param>
-            <returns>A new, initialized instance.</returns>
-        </member>
-        <member name="M:ProtoBuf.Serializer.Deserialize(System.Type,System.IO.Stream)">
-            <summary>
-            Creates a new instance from a protocol-buffer stream
-            </summary>
-            <param name="type">The type to be created.</param>
             <param name="source">The binary stream to apply to the new instance (cannot be null).</param>
             <returns>A new, initialized instance.</returns>
         </member>
@@ -3082,7 +2483,7 @@
             (use the <see cref="F:ProtoBuf.Serializer.ListItemTag"/> tag to emulate the implicit behavior
             when serializing a list/array). When a tag is
             specified, any records with different tags are silently omitted. The
-            tag is ignored. The tag is ignored for fixed-length prefixes.
+            tag is ignored. The tag is ignores for fixed-length prefixes.
             </summary>
             <typeparam name="T">The type of object to deserialize.</typeparam>
             <param name="source">The binary stream containing the serialized records.</param>
