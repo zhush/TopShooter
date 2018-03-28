@@ -1,5 +1,5 @@
 {
-	"Addr":"127.0.0.1:13080",
+	"Addr":"127.0.0.1:13078",
 	"MaxConnNum":20,
 	"DatabaseAddr":"127.0.0.1:3306",
 	"Database":"topshooter",

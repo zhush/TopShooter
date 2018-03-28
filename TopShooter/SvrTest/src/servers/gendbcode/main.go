@@ -240,15 +240,38 @@ func init(){
 	var err error
 	sqldb, err = sql.Open("mysql", sqlOptions())
 	check(err)
+	
+	registerAllOperateTableHandlers()
+	
 }
 `
+
+	registerAllHandlerContent := `
+	
+func registerAllOperateTableHandlers(){	
+	`
+
 	for e := tableList.Front(); e != nil; e = e.Next() {
 		tableInfo := e.Value.(*TableInfo)
 		content = content + GenerateTableReadFunction(tableInfo)
+		//registerAllHandlerContent = registerAllHandlerContent + "    RegisterReadTableHandler(\""+tableInfo.TableName+"\", Add_"
 		content = content + GenerateTableAddFunction(tableInfo)
 		content = content + GenerateTableUpdateFunction(tableInfo)
 		content = content + GenerateTableRemoveFunction(tableInfo)
+		registerContent := fmt.Sprintf(`
+	RegisterReadTableHandler("%s", Read_%s)
+	RegisterAddTableHandler("%s", Add_%s)
+	RegisterUpdateTableHandler("%s", Update_%s)
+	RegisterRemoveTableHandler("%s", Remove_%s)
+		`, tableInfo.TableName, tableInfo.TableName, tableInfo.TableName, tableInfo.TableName,
+			tableInfo.TableName, tableInfo.TableName, tableInfo.TableName, tableInfo.TableName)
+		registerAllHandlerContent = registerAllHandlerContent + registerContent
 	}
+	registerAllHandlerContent = registerAllHandlerContent + `
+}
+`
+
+	content = content + registerAllHandlerContent
 
 	var f *os.File
 	var err1 error

@@ -63,6 +63,9 @@ func init(){
 	var err error
 	sqldb, err = sql.Open("mysql", sqlOptions())
 	check(err)
+	
+	registerAllOperateTableHandlers()
+	
 }
 
 
@@ -585,4 +588,261 @@ func Remove_t_role(key string)(bool, int64){
 		}
 	}
 	return true, RowsAffected
+}
+
+
+func Read_t_testtable(key string)(result map[string]string){
+    redisKey:= "t_testtable:"+key
+    isExsit, _ := client.Exists(redisKey).Result()
+    if isExsit == int64(1) { //在redis中有数据,则直接返回redis的数据
+        result["field1"]=client.HGet(redisKey, "field1").Val()
+        result["field2"]=client.HGet(redisKey, "field2").Val()
+        result["field3"]=client.HGet(redisKey, "field3").Val()
+        result["field4"]=client.HGet(redisKey, "field4").Val()
+        result["field5"]=client.HGet(redisKey, "field5").Val()
+        result["field6"]=client.HGet(redisKey, "field6").Val()
+        result["field7"]=client.HGet(redisKey, "field7").Val()
+        return
+    }
+    sql := fmt.Sprintf("select * from t_testtable where field1 = %s", key)
+
+	rows, err := sqldb.Query(sql)
+	check(err)
+	//返回所有列
+	cols, err1 := rows.Columns()
+	check(err1)
+	//这里表示一行所有列的值，用[]byte表示
+	vals := make([][]byte, len(cols))
+	//这里表示一行填充数据
+	scans := make([]interface{}, len(cols))
+	//这里scans引用vals，把数据填充到[]byte里
+	for k, _ := range vals {
+		scans[k] = &vals[k]
+	}
+	for rows.Next() {
+		//填充数据
+		rows.Scan(scans...)
+		//把vals中的数据复制到row中
+		for k, v := range vals {
+			key := cols[k]
+			result[key] = string(v)
+		}
+		break
+	}
+	return
+}
+
+
+//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,和自增的id, 否则返回false, 0
+func Add_t_testtable(contentJson string) (bool, int64){
+	var contentMaps map[string]interface{}
+	err := json.Unmarshal([]byte(contentJson), &contentMaps)
+	if err == nil {
+		return false, 0
+	}
+    tableKey, isOk := contentMaps["field1"]
+	if isOk == false{
+		return false, 0
+	}
+    redisKey := "t_testtable:"+tableKey.(string)
+
+	isExsit, _ := client.Exists(redisKey).Result()
+	if isExsit == int64(1) {
+		return false, 0
+	}
+	
+	//Write to Redis
+	var fieldValue interface{}
+	var keyIsExsit bool
+	
+    fieldValue, keyIsExsit = contentMaps["field1"]
+    if keyIsExsit == true {
+        client.HSet(redisKey, "field1", fieldValue)
+    }else{
+        client.HSet(redisKey, "field1", "")
+    }
+
+    fieldValue, keyIsExsit = contentMaps["field2"]
+    if keyIsExsit == true {
+        client.HSet(redisKey, "field2", fieldValue)
+    }else{
+        client.HSet(redisKey, "field2", "")
+    }
+
+    fieldValue, keyIsExsit = contentMaps["field3"]
+    if keyIsExsit == true {
+        client.HSet(redisKey, "field3", fieldValue)
+    }else{
+        client.HSet(redisKey, "field3", "")
+    }
+
+    fieldValue, keyIsExsit = contentMaps["field4"]
+    if keyIsExsit == true {
+        client.HSet(redisKey, "field4", fieldValue)
+    }else{
+        client.HSet(redisKey, "field4", "")
+    }
+
+    fieldValue, keyIsExsit = contentMaps["field5"]
+    if keyIsExsit == true {
+        client.HSet(redisKey, "field5", fieldValue)
+    }else{
+        client.HSet(redisKey, "field5", "")
+    }
+
+    fieldValue, keyIsExsit = contentMaps["field6"]
+    if keyIsExsit == true {
+        client.HSet(redisKey, "field6", fieldValue)
+    }else{
+        client.HSet(redisKey, "field6", "")
+    }
+
+    fieldValue, keyIsExsit = contentMaps["field7"]
+    if keyIsExsit == true {
+        client.HSet(redisKey, "field7", fieldValue)
+    }else{
+        client.HSet(redisKey, "field7", "")
+    }
+
+	//Write to Mysql!
+	keys := "("
+	values := "("
+	for k, v := range(contentMaps){
+		if keys != "("{
+			keys = keys + ","
+		}
+		keys = keys + k
+		if values != "("{
+			values = values + ","
+		}
+		switch val:=v.(type){
+			case string:
+				values = values + "\"" + val + "\""
+			default:
+				values = values + toString(val)
+		}
+	}
+	
+	keys = keys + ")"
+	values = values + ")"	
+    tableNames := "t_testtable"
+	sql := fmt.Sprintf("insert into %s  %s  values  %s ", tableNames, keys, values)
+	ret1, err1 := sqldb.Exec(sql)
+	if err1 != nil {
+		log.Error("exec:%s failed!", sql)
+		return false, 0
+	}
+	var lastInserId int64 = 0
+	if LastInsertId, err2 := ret1.LastInsertId(); nil == err2 {
+		lastInserId = LastInsertId
+	}
+	if RowsAffected, err3 := ret1.RowsAffected(); nil != err3 {
+		return false, 0
+	} else {
+		if RowsAffected == 0 {
+			return false, 0
+		}
+	}
+	return true, int64(lastInserId)
+}
+
+
+//添加表记录的方法，传入的是json字符串,如果插入成功，则返回true,和自增的id, 否则返回false, 0
+func Update_t_testtable(key string, contentJson string)(bool, int64){
+	var contentMaps map[string]interface{}
+	err := json.Unmarshal([]byte(contentJson), &contentMaps)
+	if err == nil {
+		return false, 0
+	}
+    redisKey := "t_testtable:"+key
+	isExsit, _ := client.Exists(redisKey).Result()
+	if isExsit == int64(0) {
+		return false, 0
+	}
+	//更新redis
+	for k, v := range(contentMaps){
+		client.HSet(redisKey, k, v)
+	}
+	
+	//Write to Mysql!
+	keyvalues := ""
+	for k, v := range(contentMaps){
+		if keyvalues != ""{
+			keyvalues = keyvalues + ","
+		}
+		keyvalues = keyvalues + k + " = " + toString(v)
+	}
+    conditions := fmt.Sprintf("field1 = %s",sqlValueStr(key))
+    tableNames := "t_testtable"
+
+	sql := fmt.Sprintf("update from  %s  set(%s) where (%s)", tableNames, keyvalues, conditions)
+	ret1, err1 := sqldb.Exec(sql)
+	if err1 != nil {
+		return false, 0
+	}
+	var lastInserId int64 = 0
+	if LastInsertId, err2 := ret1.LastInsertId(); nil == err2 {
+		lastInserId = LastInsertId
+	}
+	if RowsAffected, err3 := ret1.RowsAffected(); nil != err3 {
+		return false, 0
+	} else {
+		if RowsAffected == 0 {
+			return false, 0
+		}
+	}
+	return true, int64(lastInserId)
+}
+
+
+//删除表记录的方法，传入的是key 字符串,如果删除成功，则返回true,和影响的行数, 否则返回false, 0
+func Remove_t_testtable(key string)(bool, int64){
+    redisKey := "t_testtable:"+key
+	isExsit, _ := client.Exists(redisKey).Result()
+	if isExsit == int64(0) {
+		return false, 0
+	}
+	//删除redis
+	client.Del(redisKey)
+	
+	//Delete from Mysql!
+    conditions := fmt.Sprintf("field1 = %s",sqlValueStr(key))
+    tableNames := "t_testtable"
+
+	sql := fmt.Sprintf("delete from  %s  where (%s)", tableNames, conditions)
+	ret1, err1 := sqldb.Exec(sql)
+	if err1 != nil {
+		return false, 0
+	}
+
+	var err2 error
+	var RowsAffected int64 = 0
+	if RowsAffected, err2 = ret1.RowsAffected(); nil != err2 {
+		return false, 0
+	} else {
+		if RowsAffected == 0 {
+			return false, 0
+		}
+	}
+	return true, RowsAffected
+}
+
+	
+func registerAllOperateTableHandlers(){	
+	
+	RegisterReadTableHandler("t_account", Read_t_account)
+	RegisterAddTableHandler("t_account", Add_t_account)
+	RegisterUpdateTableHandler("t_account", Update_t_account)
+	RegisterRemoveTableHandler("t_account", Remove_t_account)
+		
+	RegisterReadTableHandler("t_role", Read_t_role)
+	RegisterAddTableHandler("t_role", Add_t_role)
+	RegisterUpdateTableHandler("t_role", Update_t_role)
+	RegisterRemoveTableHandler("t_role", Remove_t_role)
+		
+	RegisterReadTableHandler("t_testtable", Read_t_testtable)
+	RegisterAddTableHandler("t_testtable", Add_t_testtable)
+	RegisterUpdateTableHandler("t_testtable", Update_t_testtable)
+	RegisterRemoveTableHandler("t_testtable", Remove_t_testtable)
+		
 }
