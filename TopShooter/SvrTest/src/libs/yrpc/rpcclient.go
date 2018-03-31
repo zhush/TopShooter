@@ -69,5 +69,8 @@ func (self *YClient) SendMsg(method string, reqJson string) (bool, bool, string)
 		log.Error("YService.RomoteCall rpc error:", err.Error())
 		return false, false, ""
 	}
+
+	log.Debug("SendMsg, resp:%v", reply)
+
 	return reply.Result, reply.HasResponse, reply.JsonContent
 }

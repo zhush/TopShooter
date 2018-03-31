@@ -44,6 +44,9 @@ func toString(a interface{}) string{
 	if v,p:=a.(int32); p { 
 		return strconv.Itoa(int(v))
 	}
+	if v,p:=a.(string); p {
+		return v;
+	}
 	return "wrong"
 }
 
@@ -70,6 +73,7 @@ func init(){
 
 
 func Read_t_account(key string, val interface{})(result map[string]string){
+    result = make(map[string]string)
     redisKey:= "t_account:"+toString(val)
     isExsit, _ := client.Exists(redisKey).Result()
     if isExsit == int64(1) { //在redis中有数据,则直接返回redis的数据
@@ -84,6 +88,7 @@ func Read_t_account(key string, val interface{})(result map[string]string){
     sql := "select * from t_account where " + key + " = " + sqlValueStr(val)
 
 	rows, err := sqldb.Query(sql)
+	log.Debug("Sql is:%v", sql)
 	check(err)
 	//返回所有列
 	cols, err1 := rows.Columns()
@@ -299,6 +304,7 @@ func Remove_t_account(key string)(bool, int64){
 
 
 func Read_t_role(key string, val interface{})(result map[string]string){
+    result = make(map[string]string)
     redisKey:= "t_role:"+toString(val)
     isExsit, _ := client.Exists(redisKey).Result()
     if isExsit == int64(1) { //在redis中有数据,则直接返回redis的数据
@@ -321,6 +327,7 @@ func Read_t_role(key string, val interface{})(result map[string]string){
     sql := "select * from t_role where " + key + " = " + sqlValueStr(val)
 
 	rows, err := sqldb.Query(sql)
+	log.Debug("Sql is:%v", sql)
 	check(err)
 	//返回所有列
 	cols, err1 := rows.Columns()

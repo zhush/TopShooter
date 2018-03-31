@@ -221,6 +221,9 @@ func toString(a interface{}) string{
 	if v,p:=a.(int32); p { 
 		return strconv.Itoa(int(v))
 	}
+	if v,p:=a.(string); p {
+		return v;
+	}
 	return "wrong"
 }
 
@@ -302,6 +305,7 @@ func GenerateTableReadFunction(tableInfo *TableInfo) string {
 
 	ret := "\n\n"
 	ret = ret + "func Read_" + tableName + "(key string, val interface{})(result map[string]string){\n"
+	ret = ret + "    result = make(map[string]string)\n"
 	ret = ret + "    redisKey:= \"" + tableName + ":\"+toString(val)\n"
 	ret = ret + "    isExsit, _ := client.Exists(redisKey).Result()\n"
 	ret = ret + "    if isExsit == int64(1) { //在redis中有数据,则直接返回redis的数据\n"
@@ -314,6 +318,7 @@ func GenerateTableReadFunction(tableInfo *TableInfo) string {
 	ret = ret + fmt.Sprintf("    sql := \"select * from %s where \" + key + \" = \" + sqlValueStr(val)\n", tableName)
 	ret = ret + `
 	rows, err := sqldb.Query(sql)
+	log.Debug("Sql is:%v", sql)
 	check(err)
 	//返回所有列
 	cols, err1 := rows.Columns()

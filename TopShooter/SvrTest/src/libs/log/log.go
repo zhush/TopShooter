@@ -19,10 +19,10 @@ const (
 )
 
 const (
-	printDebugLevel   = "[debug  ] "
+	printDebugLevel   = "[ debug ] "
 	printReleaseLevel = "[release] "
-	printErrorLevel   = "[error  ] "
-	printFatalLevel   = "[fatal  ] "
+	printErrorLevel   = "[ error ] "
+	printFatalLevel   = "[ fatal ] "
 )
 
 type Logger struct {

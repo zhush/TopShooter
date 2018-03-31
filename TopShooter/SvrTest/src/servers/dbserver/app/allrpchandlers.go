@@ -44,9 +44,9 @@ func ReadTable(reqJsonContent string) (isOk bool, hasResponse bool, responseJson
 		log.Fatal("Invalid Table Name:" + tableName)
 	}
 
-	log.Debug("ready to find handler")
+	log.Debug("ready to find handler,key:%v val:%v", keyName, valName)
 	resultData := handler(keyName, valName)
-	log.Debug("after excute handler")
+	log.Debug("after excute handler %v", resultData)
 	isOk = true
 	hasResponse = true
 	responseJsonBytes, err2 := json.Marshal(resultData)
@@ -55,7 +55,7 @@ func ReadTable(reqJsonContent string) (isOk bool, hasResponse bool, responseJson
 		hasResponse = false
 		return
 	}
-	log.Debug("after excute responseJson:" + responseJson)
+	log.Debug("after excute responseJson:" + string(responseJsonBytes))
 	responseJson = string(responseJsonBytes)
 	return
 }

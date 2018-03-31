@@ -1,6 +1,7 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
 	"libs/log"
 	"msg"
@@ -45,8 +46,11 @@ func handle_CS_LoginReq(player *ClientPlayer, msgData []byte) {
 							 "Val":"%s"}`, "t_account", "accountName", *(loginReq.AccName))
 
 	ret, _, respJson := App.dbServer.SendMsg("ReadTable", reqJson)
-	if ret != false {
-		log.Error("DBService.Read rpc error:", err.Error())
+
+	log.Debug("ret:%v respJson:%v", ret, respJson)
+
+	if ret == false {
+		log.Error("DBService.Read rpc error:")
 		errCode := msg.ELoginResult_InvalidAccOrPwd
 		response.LoginResult = &errCode
 		return
@@ -54,23 +58,23 @@ func handle_CS_LoginReq(player *ClientPlayer, msgData []byte) {
 
 	log.Debug("Recv LoginResult is:%s", respJson)
 
-	/*
-		var loginResult map[string]interface{}
-		json.Unmarshal(respJson, &loginResult)
+	var loginResult map[string]interface{}
+	json.Unmarshal([]byte(respJson), &loginResult)
+	log.Debug("loginResult:%v", loginResult)
 
-		log.Debug("Login, %v", reply)
-		if reply.Rows == 0 || reply.RowValues[0].Values["password"] != *(loginReq.AccPassword) {
-			errCode := msg.ELoginResult_InvalidAccOrPwd
-			response.LoginResult = &errCode
-			player.SendMsg(uint16(msg.MSG_ID_ELogin_Ack), response)
-			player.Close()
-		}
+	password := loginResult["password"]
 
-		retCode := msg.ELoginResult_Succeed
-		response.LoginResult = &retCode
-		//填写玩家基本信息
+	if password.(string) != *(loginReq.AccPassword) {
+		log.Debug("Server Password is:%v client Password is:%v", password, *(loginReq.AccPassword))
+		errCode := msg.ELoginResult_InvalidAccOrPwd
+		response.LoginResult = &errCode
 		player.SendMsg(uint16(msg.MSG_ID_ELogin_Ack), response)
+		player.Close()
+	}
 
-	*/
+	retCode := msg.ELoginResult_Succeed
+	response.LoginResult = &retCode
+	//填写玩家基本信息
+	player.SendMsg(uint16(msg.MSG_ID_ELogin_Ack), response)
 
 }
