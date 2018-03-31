@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace YFUtils
 {
@@ -63,9 +64,34 @@ namespace YFUtils
 
         public static string MD5Encrypt(string strText)
         {   
+			/*
+
             MD5 md5 = new MD5CryptoServiceProvider();
             byte[] result = md5.ComputeHash(System.Text.Encoding.Default.GetBytes(strText));
+
             return System.Text.Encoding.Default.GetString(result);
+	*/
+			if (strText == null)
+			{
+				return null;
+			}
+
+			MD5 md5Hash = MD5.Create();
+			// 将输入字符串转换为字节数组并计算哈希数据 
+			byte[] data = md5Hash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(strText));
+
+			// 创建一个 Stringbuilder 来收集字节并创建字符串 
+			StringBuilder sBuilder = new StringBuilder();
+
+			// 循环遍历哈希数据的每一个字节并格式化为十六进制字符串 
+			for (int i = 0; i < data.Length; i++)
+			{
+				sBuilder.Append(data[i].ToString("x2"));
+			}
+
+			// 返回十六进制字符串 
+			return sBuilder.ToString();
+
         }
 
         private static int NextRandom(int numSeeds, int length)
