@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"libs/log"
 	"libs/net"
 	"libs/util"
@@ -38,6 +39,7 @@ func (app *Application) Run() {
 	app.netServer.Start()
 	log.Debug("LoginServer Starting")
 	log.Debug("Listen addr:%s", config.Conf["Addr"].(string))
+	fmt.Println("Listen addr:" + config.Conf["Addr"].(string))
 	app.dbIsReady = false
 	app.tryConnectDB()
 	util.WaitAppCloseSignal()

@@ -338,6 +338,7 @@ func GenerateTableReadFunction(tableInfo *TableInfo) string {
 		for k, v := range vals {
 			key := cols[k]
 			result[key] = string(v)
+			client.HSet(redisKey, key, v)
 		}
 		break
 	}

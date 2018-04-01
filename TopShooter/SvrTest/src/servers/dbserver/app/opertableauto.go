@@ -108,6 +108,7 @@ func Read_t_account(key string, val interface{})(result map[string]string){
 		for k, v := range vals {
 			key := cols[k]
 			result[key] = string(v)
+			client.HSet(redisKey, key, v)
 		}
 		break
 	}
@@ -347,6 +348,7 @@ func Read_t_role(key string, val interface{})(result map[string]string){
 		for k, v := range vals {
 			key := cols[k]
 			result[key] = string(v)
+			client.HSet(redisKey, key, v)
 		}
 		break
 	}
