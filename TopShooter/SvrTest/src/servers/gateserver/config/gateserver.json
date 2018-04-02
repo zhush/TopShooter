@@ -1,0 +1,6 @@
+{
+	"Addr":"127.0.0.1:13077",
+	"MaxConnNum":20,
+	"LoginServerAddr":"127.0.0.1:13079",
+	"ManageServerAddr":"127.0.0.1:13079"
+}

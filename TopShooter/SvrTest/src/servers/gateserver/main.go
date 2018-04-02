@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"servers/gateserver/app"
 )
 
 func main() {
-	fmt.Println("gateserver is starting")
+	app.App.Run()
 }
