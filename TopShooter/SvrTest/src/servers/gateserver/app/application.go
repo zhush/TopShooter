@@ -56,7 +56,7 @@ func (app *Application) tryConnectManager() {
 func (app *Application) tryConnectLoginServer() {
 	app.managerServer = yrpc.NewYClient(config.Conf["LoginServerAddr"].(string), "LoginServer")
 	<-app.managerServer.Connected
-	log.Debug("Connected Manager Server Succeed")
+	log.Debug("Connected Login Server Succeed")
 }
 
 func (app *Application) bindAndListenClient() {
@@ -68,8 +68,8 @@ func (app *Application) bindAndListenClient() {
 	app.netServer.MaxMsgLen = 4096
 	app.netServer.LittleEndian = true
 	app.netServer.NewAgent = func(conn *net.TCPConn) net.Agent {
-		a := &agent.ClientPlayer{conn}
-		return a
+		return agent.NewClientPlayer(conn)
 	}
 	app.netServer.Start()
+	log.Debug("Start Listen: %v", app.netServer.Addr)
 }

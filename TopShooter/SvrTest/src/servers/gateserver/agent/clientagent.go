@@ -10,7 +10,13 @@ import (
 )
 
 type ClientPlayer struct {
-	Conn net.Conn
+	Conn  net.Conn
+	State AgentStatus
+}
+
+func NewClientPlayer(conn net.Conn) *ClientPlayer {
+	client := &ClientPlayer{Conn: conn, State: StatusInit}
+	return client
 }
 
 func (player *ClientPlayer) Run() {
