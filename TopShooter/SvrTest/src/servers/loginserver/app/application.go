@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"libs/log"
 	"libs/net"
 	"libs/util"
@@ -17,29 +16,17 @@ func init() {
 }
 
 type Application struct {
-	netServer *net.TCPServer
-	players   map[net.Conn]*ClientPlayer
-	dbServer  *yrpc.YClient
-	dbmutex   sync.Mutex
-	dbIsReady bool
+	rpcService *yrpc.YService
+	netServer  *net.TCPServer
+	players    map[net.Conn]*ClientPlayer
+	dbServer   *yrpc.YClient
+	dbmutex    sync.Mutex
+	dbIsReady  bool
 }
 
 func (app *Application) Run() {
-	app.netServer.Addr = config.Conf["Addr"].(string)
-	maxConnNum := config.Conf["MaxConnNum"].(float64)
-	app.netServer.MaxConnNum = int(maxConnNum)
-	app.netServer.PendingWriteNum = 10
-	app.netServer.LenMsgLen = 2
-	app.netServer.MaxMsgLen = 4096
-	app.netServer.LittleEndian = true
-	app.netServer.NewAgent = func(conn *net.TCPConn) net.Agent {
-		a := &ClientPlayer{conn}
-		return a
-	}
-	app.netServer.Start()
 	log.Debug("LoginServer Starting")
-	log.Debug("Listen addr:%s", config.Conf["Addr"].(string))
-	fmt.Println("Listen addr:" + config.Conf["Addr"].(string))
+	app.startRpcService()
 	app.dbIsReady = false
 	app.tryConnectDB()
 	util.WaitAppCloseSignal()
@@ -66,4 +53,17 @@ func (app *Application) ClosePlayer(player *ClientPlayer) {
 
 func (app *Application) Close() {
 	log.Debug("LoginServer Closing")
+}
+
+func (app *Application) startRpcService() {
+	log.Debug("Database Server is start rpc service...")
+	log.Debug("ManagerServer is start rpc service...")
+	app.rpcService = yrpc.NewYService(config.Conf["Addr"].(string))
+	app.RegisterRpcMethod(app.rpcService)
+	yrpc.ServiceStartRun(app.rpcService)
+}
+
+//注册供其他服调用的method.
+func (app *Application) RegisterRpcMethod(service *yrpc.YService) {
+
 }

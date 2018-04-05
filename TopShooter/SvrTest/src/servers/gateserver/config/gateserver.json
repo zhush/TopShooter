@@ -1,0 +1,8 @@
+{
+	"Addr":"127.0.0.1:13077",
+	"MaxConnNum":20,
+	"LoginServerAddr":"127.0.0.1:13079",
+	"ManagerAddr":"127.0.0.1:13084",
+	"Name":"Gate1",
+	"GateId":1001
+}
