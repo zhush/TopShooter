@@ -1,4 +1,4 @@
-package agent
+package app
 
 import (
 	"bytes"
@@ -15,14 +15,14 @@ type ClientPlayer struct {
 }
 
 func NewClientPlayer(conn net.Conn) *ClientPlayer {
-	client := &ClientPlayer{Conn: conn, State: StatusInit}
+	client := &ClientPlayer{Conn: conn, State: StatusLogin}
 	return client
 }
 
-func (player *ClientPlayer) Run() {
+func (self *ClientPlayer) Run() {
 	log.Debug("A new clientPlayer is created!!")
 	for {
-		data, err := player.Conn.ReadMsg()
+		data, err := self.Conn.ReadMsg()
 		if err != nil {
 			log.Debug("read message Error: %v", err)
 			break
@@ -33,32 +33,33 @@ func (player *ClientPlayer) Run() {
 		var msgId uint16
 		binary.Read(buf, binary.LittleEndian, &msgId)
 		log.Debug("recv MsgId:%d", msgId)
-		player.HandleMsg(msgId, msgData)
+		self.HandleMsg(msgId, msgData)
 	}
 }
 
-func (player *ClientPlayer) OnClose() {
+func (self *ClientPlayer) OnClose() {
 
 }
 
-func (player *ClientPlayer) Close() {
-	player.Conn.Close()
+func (self *ClientPlayer) Close() {
+	self.Conn.Close()
+}
+
+func (self *ClientPlayer) SetState(state AgentStatus) {
+	self.State = state
 }
 
 //处理客户端发送的消息
-func (player *ClientPlayer) HandleMsg(msgId uint16, msgData []byte) {
-	/*
-		if handler, ok := handlerMsgMaps[msgId]; ok {
-			handler(player, msgData)
-		} else {
-			log.Fatal("ClientPlayer HandleMsg, Invalid msgId:%d", msgId)
-		}
-	*/
-
+func (self *ClientPlayer) HandleMsg(msgId uint16, msgData []byte) {
+	if self.State == StatusLogin {
+		App.HandleLoginMsg(self, msgId, msgData)
+	} else if self.State == StatusGaming {
+		App.HandleLoginMsg(self, msgId, msgData)
+	}
 }
 
 //发送消息到客户端
-func (player *ClientPlayer) SendMsg(msgId uint16, msg proto.Message) {
+func (self *ClientPlayer) SendMsg(msgId uint16, msg proto.Message) {
 	data, err := proto.Marshal(msg)
 	headBuf := new(bytes.Buffer)
 	binary.Write(headBuf, binary.LittleEndian, msgId)
@@ -68,7 +69,7 @@ func (player *ClientPlayer) SendMsg(msgId uint16, msg proto.Message) {
 	buf := headBuf.Bytes()
 	buf = append(buf, data...)
 	log.Debug("sendClient len:%d", len(buf))
-	err = player.Conn.WriteMsg(buf)
+	err = self.Conn.WriteMsg(buf)
 	if err != nil {
 		log.Fatal("ClientPlayer SendMsg Failed!" + err.Error())
 	}

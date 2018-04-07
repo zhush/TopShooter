@@ -5,14 +5,13 @@ import (
 	"libs/net"
 	"libs/util"
 	"libs/yrpc"
-	"servers/gateserver/agent"
 	"servers/gateserver/config"
 )
 
 var App *Application
 
 func init() {
-	App = &Application{netServer: new(net.TCPServer), players: make(map[net.Conn]*agent.ClientPlayer)}
+	App = &Application{netServer: new(net.TCPServer), players: make(map[net.Conn]*ClientPlayer)}
 }
 
 type Application struct {
@@ -20,7 +19,7 @@ type Application struct {
 	managerServer *yrpc.YClient  //连接管理服务器
 	loginServer   *yrpc.YClient  //连接的登录服务器
 	serverName    string
-	players       map[net.Conn]*agent.ClientPlayer
+	players       map[net.Conn]*ClientPlayer
 }
 
 func (app *Application) Run() {
@@ -68,8 +67,23 @@ func (app *Application) bindAndListenClient() {
 	app.netServer.MaxMsgLen = 4096
 	app.netServer.LittleEndian = true
 	app.netServer.NewAgent = func(conn *net.TCPConn) net.Agent {
-		return agent.NewClientPlayer(conn)
+		return NewClientPlayer(conn)
 	}
 	app.netServer.Start()
 	log.Debug("Start Listen: %v", app.netServer.Addr)
+}
+
+//处理登录的协议;
+func (app *Application) HandleLoginMsg(client *ClientPlayer, msgId uint16, msgData []byte) {
+
+	reqJson := fmt.Sprintf(`{"msgId":%d,
+							 "msgData":"%s",
+							 "Val":"%s"}`, msgId, "accountName", *(loginReq.AccName))
+
+	ret, _, respJson := App.dbServer.SendMsg("ReadTable", reqJson)
+}
+
+//处理有游戏服的协议;
+func (app *Application) HandleGameMsg(client *ClientPlayer, msgId uint16, msgData []byte) {
+
 }

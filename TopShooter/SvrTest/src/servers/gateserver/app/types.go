@@ -1,13 +1,11 @@
-package agent
+package app
 
 type AgentStatus int
 
 //代理的四种状态.
 const (
-	StatusInit = iota
-	StatusLogin
+	StatusLogin = iota
 	StatusGaming
-	StatusLogout
 )
 
 func (this AgentStatus) String() string {
