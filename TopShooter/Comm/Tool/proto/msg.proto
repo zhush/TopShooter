@@ -5,6 +5,8 @@ enum MSG_ID
 {
     ELogin_Req = 1001;
     ELogin_Ack = 1002;
+    ECreateRole_Req = 1003;
+    ECreateRole_Ack = 1004;
 }
 
 //µÇÂ¼½á¹û

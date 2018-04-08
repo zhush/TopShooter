@@ -173,7 +173,13 @@ namespace msg
       ELogin_Req = 1001,
             
       [global::ProtoBuf.ProtoEnum(Name=@"ELogin_Ack", Value=1002)]
-      ELogin_Ack = 1002
+      ELogin_Ack = 1002,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"ECreateRole_Req", Value=1003)]
+      ECreateRole_Req = 1003,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"ECreateRole_Ack", Value=1004)]
+      ECreateRole_Ack = 1004
     }
   
     [global::ProtoBuf.ProtoContract(Name=@"ELoginResult")]

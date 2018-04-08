@@ -1,11 +1,16 @@
 package app
 
 import (
+	"encoding/json"
+	"fmt"
 	"libs/log"
 	"libs/net"
 	"libs/util"
 	"libs/yrpc"
+	"reflect"
 	"servers/gateserver/config"
+
+	"github.com/golang/protobuf/proto"
 )
 
 var App *Application
@@ -76,9 +81,23 @@ func (app *Application) bindAndListenClient() {
 //处理登录的协议;
 func (app *Application) HandleLoginMsg(client *ClientPlayer, msgId uint16, msgData []byte) {
 
+	msgType, ok := MsgTypeMaps[msgId]
+	if !ok {
+		log.Error("Invalid msgId:%v, not register in gate..", msgId)
+		return
+	}
+	m := reflect.New(msgType.Elem())
+
+	err := proto.Unmarshal(msgData, m.Interface())
+	if err != nil {
+		log.Error("Invalid LoginReq,error:%s, byte:%s", err.Error(), msgData)
+		player.Close()
+	}
+
+	msgJson := json.Marshal(m)
 	reqJson := fmt.Sprintf(`{"msgId":%d,
-							 "msgData":"%s",
-							 "Val":"%s"}`, msgId, "accountName", *(loginReq.AccName))
+							 "msgJson":"%s",
+							 "Val":"%s"}`, msgId, msgJson)
 
 	ret, _, respJson := App.dbServer.SendMsg("ReadTable", reqJson)
 }
