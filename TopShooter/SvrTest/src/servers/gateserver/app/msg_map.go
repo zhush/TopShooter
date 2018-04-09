@@ -13,7 +13,7 @@ var MsgTypeMaps map[uint16]reflect.Type
 
 func RegisterMsgType(msgId uint16, x proto.Message) {
 	t := reflect.TypeOf(x)
-	handlerMsgMaps[msgId] = t
+	MsgTypeMaps[msgId] = t
 }
 
 func init() {

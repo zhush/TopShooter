@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-	"fmt"
 	"libs/log"
 	"libs/net"
 	"libs/util"
@@ -88,18 +87,62 @@ func (app *Application) HandleLoginMsg(client *ClientPlayer, msgId uint16, msgDa
 	}
 	m := reflect.New(msgType.Elem())
 
-	err := proto.Unmarshal(msgData, m.Interface())
+	err := proto.Unmarshal(msgData, m.Interface().(proto.Message))
 	if err != nil {
 		log.Error("Invalid LoginReq,error:%s, byte:%s", err.Error(), msgData)
-		player.Close()
+		client.Close()
 	}
 
-	msgJson := json.Marshal(m)
-	reqJson := fmt.Sprintf(`{"msgId":%d,
-							 "msgJson":"%s",
-							 "Val":"%s"}`, msgId, msgJson)
+	msgJson, err := json.Marshal(m)
+	if err != nil {
+		log.Error("call Json.Marshal failed,error:%s, byte:%s", err.Error(), msgData)
+		client.Close()
+		return
+	}
 
-	ret, _, respJson := App.dbServer.SendMsg("ReadTable", reqJson)
+	sendMsg := &yrpc.MsgS2SParam{MsgId: msgId, MsgBody: string(msgJson)}
+
+	var reqJson []byte
+	reqJson, err = json.Marshal(sendMsg)
+	if err != nil {
+		log.Error("call Json.Marshal failed,error:%s, byte:%s", err.Error(), msgData)
+		client.Close()
+		return
+	}
+
+	ret, hasResponse, respJson := app.loginServer.SendMsg("HandleClientMsg", string(reqJson))
+	if ret == false {
+		log.Error("call loginServer msg failed, msg:%s", msgJson)
+		client.Close()
+		return
+	}
+	//有结果返回
+	if hasResponse == true {
+		respMsg := &yrpc.MsgS2SParam{}
+		err = json.Unmarshal([]byte(respJson), &respMsg)
+		if err != nil {
+			log.Error("call loginServer msg failed, msg:%s", msgJson)
+			client.Close()
+			return
+		}
+		recvMsgId := respMsg.MsgId
+		respMsgType, ok2 := MsgTypeMaps[recvMsgId]
+		if !ok2 {
+			log.Error("Invalid recv msgId:%v from LoginServer, not register in gate..", recvMsgId)
+			client.Close()
+			return
+		}
+
+		realMsgType := reflect.New(respMsgType.Elem())
+		err3 := proto.Unmarshal([]byte(respJson), realMsgType.Interface().(proto.Message))
+		if err3 != nil {
+			log.Error("call loginServer msg failed, msg:%s", msgJson)
+			client.Close()
+			return
+		}
+		client.SendMsg(recvMsgId, realMsgType.Interface().(proto.Message))
+	}
+
 }
 
 //处理有游戏服的协议;

@@ -12,3 +12,8 @@ type RespParam struct {
 	HasResponse bool   //是否有返回值
 	JsonContent string //返回的json,仅当HasResponse为true时有效
 }
+
+type MsgS2SParam struct {
+	MsgId   uint16 //消息id;
+	MsgBody string //消息体;存储一般是json;
+}
