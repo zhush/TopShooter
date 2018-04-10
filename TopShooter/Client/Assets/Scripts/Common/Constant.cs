@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class Constant  {
 	public static string ServerIp = "127.0.0.1";
-	public static int Port = 13079;
+	public static int Port = 13077;
 }

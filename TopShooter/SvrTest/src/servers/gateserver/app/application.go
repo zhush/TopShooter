@@ -57,8 +57,8 @@ func (app *Application) tryConnectManager() {
 }
 
 func (app *Application) tryConnectLoginServer() {
-	app.managerServer = yrpc.NewYClient(config.Conf["LoginServerAddr"].(string), "LoginServer")
-	<-app.managerServer.Connected
+	app.loginServer = yrpc.NewYClient(config.Conf["LoginServerAddr"].(string), "LoginServer")
+	<-app.loginServer.Connected
 	log.Debug("Connected Login Server Succeed")
 }
 

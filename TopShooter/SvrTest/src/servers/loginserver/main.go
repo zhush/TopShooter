@@ -1,11 +1,8 @@
 package main
 
 import (
-	"fmt"
 	log "libs/log"
 	slog "log"
-	"os"
-	"os/signal"
 	"servers/loginserver/app"
 )
 
@@ -16,10 +13,4 @@ func init() {
 
 func main() {
 	app.App.Run()
-	//close
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, os.Kill)
-	fmt.Println("loginserver is starting")
-	<-c
-	app.App.Close()
 }
