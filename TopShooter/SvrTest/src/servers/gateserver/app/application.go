@@ -112,7 +112,7 @@ func (app *Application) HandleLoginMsg(client *ClientPlayer, msgId uint16, msgDa
 
 	ret, hasResponse, respJson := app.loginServer.SendMsg("HandleClientMsg", string(reqJson))
 	if ret == false {
-		log.Error("call loginServer msg failed, msg:%s", msgJson)
+		log.Error("call loginServer msg failed, msg:%s", reqJson)
 		client.Close()
 		return
 	}

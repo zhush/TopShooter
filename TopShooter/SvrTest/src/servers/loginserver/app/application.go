@@ -65,5 +65,5 @@ func (app *Application) startRpcService() {
 
 //注册供其他服调用的method.
 func (app *Application) RegisterRpcMethod(service *yrpc.YService) {
-
+	registerAllHandlers(service)
 }
