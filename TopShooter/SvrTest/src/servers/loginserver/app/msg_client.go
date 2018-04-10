@@ -10,13 +10,12 @@ import (
 
 var handlerClientMsgMaps map[uint16]func(string) (uint16, string)
 
-
 func init() {
+	handlerClientMsgMaps = make(map[uint16]func(string) (uint16, string))
 	RegisterAllClientMsgHandler()
 }
 
-
-func RegisterAllClientMsgHandler(){
+func RegisterAllClientMsgHandler() {
 	RegisterClientMsgHandler(uint16(msg.MSG_ID_ELogin_Req), handle_CS_LoginReq)
 }
 
@@ -28,7 +27,10 @@ func RegisterClientMsgHandler(msgId uint16, handler func(string) (uint16, string
 func handle_CS_LoginReq(reqJson string) (respMsgId uint16, respJson string) {
 
 	response := &msg.SC_LoginResponse{}
-	defer func(){respJson = string(json.Marshal(response))}
+	defer func() {
+		respJsonBytes, _ := json.Marshal(response)
+		respJson = string(respJsonBytes)
+	}()
 
 	loginReq := &msg.CS_LoginReq{}
 	err := json.Unmarshal([]byte(respJson), &loginReq)
@@ -40,15 +42,11 @@ func handle_CS_LoginReq(reqJson string) (respMsgId uint16, respJson string) {
 		return
 	}
 
-
-
 	log.Debug("Recv LoginReq, UserName:%s Password:%s Platform:%d", *(loginReq.AccName), *(loginReq.AccPassword), *(loginReq.PlatForm))
 	if App.DBIsReady() == false {
 		log.Debug("DB is not ready. login failed")
 		errCode := msg.ELoginResult_ServerClosed
 		response.LoginResult = &errCode
-
-		respJson = string(json.Marshal(response))
 		return
 		//player.SendMsg(uint16(msg.MSG_ID_ELogin_Ack), response)
 		//player.Close()
@@ -94,5 +92,5 @@ func handle_CS_LoginReq(reqJson string) (respMsgId uint16, respJson string) {
 	retCode := msg.ELoginResult_Succeed
 	response.LoginResult = &retCode
 	//填写玩家基本信息
-	respJson = string(json.Marshal(response))
+	return
 }
