@@ -111,6 +111,7 @@ func (app *Application) HandleLoginMsg(client *ClientPlayer, msgId uint16, msgDa
 	}
 
 	ret, hasResponse, respJson := app.loginServer.SendMsg("HandleClientMsg", string(reqJson))
+
 	if ret == false {
 		log.Error("call loginServer msg failed, msg:%s", reqJson)
 		client.Close()
@@ -121,7 +122,7 @@ func (app *Application) HandleLoginMsg(client *ClientPlayer, msgId uint16, msgDa
 		respMsg := &yrpc.MsgS2SParam{}
 		err = json.Unmarshal([]byte(respJson), &respMsg)
 		if err != nil {
-			log.Error("call loginServer msg failed, msg:%s", msgJson)
+			log.Error("call loginServer msg failed, json.Unmarshal Failed! msg:%s", respJson)
 			client.Close()
 			return
 		}
@@ -134,9 +135,9 @@ func (app *Application) HandleLoginMsg(client *ClientPlayer, msgId uint16, msgDa
 		}
 
 		realMsgType := reflect.New(respMsgType.Elem())
-		err3 := proto.Unmarshal([]byte(respJson), realMsgType.Interface().(proto.Message))
+		err3 := proto.Unmarshal([]byte(respMsg.MsgBody), realMsgType.Interface().(proto.Message))
 		if err3 != nil {
-			log.Error("call loginServer msg failed, msg:%s", msgJson)
+			log.Error("call loginServer msg failed, proto.Unmarshal LoginServer Json. msg:%s, MsgId:%v, err3:%s", respMsg.MsgBody, recvMsgId, err3.Error())
 			client.Close()
 			return
 		}

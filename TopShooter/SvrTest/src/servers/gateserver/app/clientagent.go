@@ -10,18 +10,22 @@ import (
 )
 
 type ClientPlayer struct {
-	Conn  net.Conn
-	State AgentStatus
+	Conn    net.Conn
+	State   AgentStatus
+	isClose bool
 }
 
 func NewClientPlayer(conn net.Conn) *ClientPlayer {
-	client := &ClientPlayer{Conn: conn, State: StatusLogin}
+	client := &ClientPlayer{Conn: conn, State: StatusLogin, isClose: false}
 	return client
 }
 
 func (self *ClientPlayer) Run() {
 	log.Debug("A new clientPlayer is created!!")
 	for {
+		if self.isClose == true {
+			break
+		}
 		data, err := self.Conn.ReadMsg()
 		if err != nil {
 			log.Debug("read message Error: %v", err)
@@ -38,11 +42,12 @@ func (self *ClientPlayer) Run() {
 }
 
 func (self *ClientPlayer) OnClose() {
-
+	self.isClose = true
 }
 
 func (self *ClientPlayer) Close() {
 	self.Conn.Close()
+	self.OnClose()
 }
 
 func (self *ClientPlayer) SetState(state AgentStatus) {

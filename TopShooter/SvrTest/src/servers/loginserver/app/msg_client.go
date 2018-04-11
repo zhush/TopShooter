@@ -27,6 +27,9 @@ func RegisterClientMsgHandler(msgId uint16, handler func(string) (uint16, string
 func handle_CS_LoginReq(reqJson string) (respMsgId uint16, respJson string) {
 
 	response := &msg.SC_LoginResponse{}
+
+	response.PlayerBaseInfo = make([]*msg.RoleBaseInfo, 0)
+
 	defer func() {
 		respJsonBytes, _ := json.Marshal(response)
 		respJson = string(respJsonBytes)
