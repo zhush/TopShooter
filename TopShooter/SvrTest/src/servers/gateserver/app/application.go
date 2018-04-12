@@ -135,7 +135,7 @@ func (app *Application) HandleLoginMsg(client *ClientPlayer, msgId uint16, msgDa
 		}
 
 		realMsgType := reflect.New(respMsgType.Elem())
-		err3 := proto.Unmarshal([]byte(respMsg.MsgBody), realMsgType.Interface().(proto.Message))
+		err3 := json.Unmarshal([]byte(respMsg.MsgBody), realMsgType.Interface().(proto.Message))
 		if err3 != nil {
 			log.Error("call loginServer msg failed, proto.Unmarshal LoginServer Json. msg:%s, MsgId:%v, err3:%s", respMsg.MsgBody, recvMsgId, err3.Error())
 			client.Close()
