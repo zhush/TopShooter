@@ -79,29 +79,24 @@ func (app *Application) bindAndListenClient() {
 
 //处理登录的协议;
 func (app *Application) HandleLoginMsg(client *ClientPlayer, msgId uint16, msgData []byte) {
-
 	msgType, ok := MsgTypeMaps[msgId]
 	if !ok {
 		log.Error("Invalid msgId:%v, not register in gate..", msgId)
 		return
 	}
 	m := reflect.New(msgType.Elem())
-
 	err := proto.Unmarshal(msgData, m.Interface().(proto.Message))
 	if err != nil {
 		log.Error("Invalid LoginReq,error:%s, byte:%s", err.Error(), msgData)
 		client.Close()
 	}
-
-	msgJson, err := json.Marshal(m)
+	msgJson, err := json.Marshal(m.Interface())
 	if err != nil {
 		log.Error("call Json.Marshal failed,error:%s, byte:%s", err.Error(), msgData)
 		client.Close()
 		return
 	}
-
 	sendMsg := &yrpc.MsgS2SParam{MsgId: msgId, MsgBody: string(msgJson)}
-
 	var reqJson []byte
 	reqJson, err = json.Marshal(sendMsg)
 	if err != nil {
@@ -111,7 +106,6 @@ func (app *Application) HandleLoginMsg(client *ClientPlayer, msgId uint16, msgDa
 	}
 
 	ret, hasResponse, respJson := app.loginServer.SendMsg("HandleClientMsg", string(reqJson))
-
 	if ret == false {
 		log.Error("call loginServer msg failed, msg:%s", reqJson)
 		client.Close()
@@ -134,16 +128,16 @@ func (app *Application) HandleLoginMsg(client *ClientPlayer, msgId uint16, msgDa
 			return
 		}
 
-		realMsgType := reflect.New(respMsgType.Elem())
-		err3 := json.Unmarshal([]byte(respMsg.MsgBody), realMsgType.Interface().(proto.Message))
-		if err3 != nil {
-			log.Error("call loginServer msg failed, proto.Unmarshal LoginServer Json. msg:%s, MsgId:%v, err3:%s", respMsg.MsgBody, recvMsgId, err3.Error())
+		realMsg := reflect.New(respMsgType.Elem())
+		err = json.Unmarshal([]byte(respMsg.MsgBody), realMsg.Interface())
+		if err != nil {
+			log.Error("json.Unmarshal respMsg.MsgBody failed, respMsg.MsgBody:%s", respMsg.MsgBody)
 			client.Close()
 			return
 		}
-		client.SendMsg(recvMsgId, realMsgType.Interface().(proto.Message))
-	}
 
+		client.SendMsg(recvMsgId, realMsg.Interface().(proto.Message))
+	}
 }
 
 //处理有游戏服的协议;

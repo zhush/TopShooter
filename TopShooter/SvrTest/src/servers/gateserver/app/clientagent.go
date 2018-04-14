@@ -36,7 +36,7 @@ func (self *ClientPlayer) Run() {
 		buf := bytes.NewReader(msgLenBuf)
 		var msgId uint16
 		binary.Read(buf, binary.LittleEndian, &msgId)
-		log.Debug("recv MsgId:%d", msgId)
+		log.Debug("recv MsgId:%d length:%d", msgId, len(msgData))
 		self.HandleMsg(msgId, msgData)
 	}
 }

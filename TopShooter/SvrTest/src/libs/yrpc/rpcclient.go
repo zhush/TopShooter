@@ -57,20 +57,17 @@ func (self *YClient) SendMsg(method string, reqJson string) (bool, bool, string)
 		log.Debug("The YClient is not running, addr:%s", self.remoteAddr)
 		return false, false, ""
 	}
-	log.Debug("Enter  sendToServer")
+	log.Debug("SendMsg, req:" + reqJson)
 	arg := &ReqParam{}
 	arg.MethodName = method
 	arg.JsonContent = reqJson
 
 	reply := &RespParam{}
-	log.Debug("Ready Call RemoteCall")
 	err := self.conn.Call("YService.RomoteCall", arg, reply)
 	if err != nil {
 		log.Error("YService.RomoteCall rpc error:", err.Error())
 		return false, false, ""
 	}
-
 	log.Debug("SendMsg, resp:%v", reply)
-
 	return reply.Result, reply.HasResponse, reply.JsonContent
 }
