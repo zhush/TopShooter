@@ -28,22 +28,34 @@ func NewYClient(addr string, name string) *YClient {
 
 func (self *YClient) init() {
 	go func() {
-		for {
-			var err error
-			self.mutex.Lock()
-			self.conn, err = rpc.DialHTTP("tcp", self.remoteAddr)
-			if err != nil {
-				log.Debug("cannot connect %s(%s), error:%s, try after 1 second!!", self.serverName, self.remoteAddr, err.Error())
-				self.mutex.Unlock()
-				time.Sleep(1 * time.Second)
-			} else {
-				self.isRunning = true
-				self.mutex.Unlock()
-				self.Connected <- 1
-				break
-			}
-		}
+		self.tryConnectServer()
 	}()
+}
+
+func (self *YClient) onConnectedServer() {
+
+}
+
+func (self *YClient) tryConnectServer() {
+	for {
+		log.Debug("Enter tryConnectServer loop!!")
+		var err error
+		self.mutex.Lock()
+		defer self.mutex.Unlock()
+		log.Debug("Start dialHttp:%s!!", self.remoteAddr)
+		self.conn, err = rpc.DialHTTP("tcp", self.remoteAddr)
+		if err != nil {
+			log.Debug("cannot connect %s(%s), error:%s, try after 1 second!!", self.serverName, self.remoteAddr, err.Error())
+			time.Sleep(1 * time.Second)
+		} else {
+			log.Debug("connect succeed!!!")
+			self.isRunning = true
+			self.Connected <- 1
+			break
+		}
+	}
+	log.Debug("connect %s(%s) succeed!", self.serverName, self.remoteAddr)
+	self.onConnectedServer()
 }
 
 func (self *YClient) IsRunning() bool {
@@ -66,7 +78,18 @@ func (self *YClient) SendMsg(method string, reqJson string) (bool, bool, string)
 	err := self.conn.Call("YService.RomoteCall", arg, reply)
 	if err != nil {
 		log.Error("YService.RomoteCall rpc error:", err.Error())
-		return false, false, ""
+		self.conn.Close()
+		self.conn = nil
+		self.isRunning = false
+		log.Debug("try connected %s again", self.serverName)
+		self.tryConnectServer()
+		<-self.Connected
+		log.Debug("connected %s succeed!", self.serverName)
+
+		err = self.conn.Call("YService.RomoteCall", arg, reply)
+		if err != nil {
+			return false, false, ""
+		}
 	}
 	log.Debug("SendMsg, resp:%v", reply)
 	return reply.Result, reply.HasResponse, reply.JsonContent
