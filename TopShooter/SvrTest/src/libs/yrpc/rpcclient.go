@@ -41,9 +41,9 @@ func (self *YClient) tryConnectServer() {
 		log.Debug("Enter tryConnectServer loop!!")
 		var err error
 		self.mutex.Lock()
-		defer self.mutex.Unlock()
 		log.Debug("Start dialHttp:%s!!", self.remoteAddr)
 		self.conn, err = rpc.DialHTTP("tcp", self.remoteAddr)
+		self.mutex.Unlock()
 		if err != nil {
 			log.Debug("cannot connect %s(%s), error:%s, try after 1 second!!", self.serverName, self.remoteAddr, err.Error())
 			time.Sleep(1 * time.Second)

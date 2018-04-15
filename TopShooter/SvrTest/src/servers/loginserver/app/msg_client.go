@@ -27,7 +27,7 @@ func RegisterClientMsgHandler(msgId uint16, handler func(string) (uint16, string
 func handle_CS_LoginReq(reqJson string) (respMsgId uint16, respJson string) {
 
 	response := &msg.SC_LoginResponse{}
-
+	respMsgId = uint16(msg.MSG_ID_ELogin_Ack)
 	response.PlayerBaseInfo = make([]*msg.RoleBaseInfo, 0)
 
 	defer func() {
@@ -37,11 +37,11 @@ func handle_CS_LoginReq(reqJson string) (respMsgId uint16, respJson string) {
 
 	loginReq := &msg.CS_LoginReq{}
 	err := json.Unmarshal([]byte(reqJson), &loginReq)
-	respMsgId = uint16(msg.MSG_ID_ELogin_Ack)
+
 	if err != nil {
 		errCode := msg.ELoginResult_ServerClosed
 		response.LoginResult = &errCode
-		log.Error("Invalid LoginReq,error:%s, %s", err.Error(), respJson)
+		log.Error("Invalid LoginReq,error:%s, cannot json.Unmarshal %s", err.Error(), reqJson)
 		return
 	}
 

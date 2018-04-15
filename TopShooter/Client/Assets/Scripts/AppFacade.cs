@@ -31,7 +31,9 @@ public class AppFacade : Facade {
 
 	public void StartUp(GameObject uiRoot){
 		RegisterCommand (NotifycationConstant.InitialData, typeof(InitialGameCmd));
-		RegisterCommand (NotifycationConstant.LoginEnterGame, typeof(ClickEnterGameCmd));
+		RegisterCommand (NotifycationConstant.LoginGame, typeof(LoginGameCmd));
+		RegisterCommand (NotifycationConstant.EnterGame, typeof(EnterGameCmd));
+		RegisterCommand (NotifycationConstant.CreateRole, typeof(CreateRoleCmd));
 		RegisterMediator (new LoginPanelMediator (uiRoot));
 		RegisterProxy (new LoginRole ());
 	}
