@@ -36,7 +36,7 @@ func handle_CS_LoginReq(reqJson string) (respMsgId uint16, respJson string) {
 	}()
 
 	loginReq := &msg.CS_LoginReq{}
-	err := json.Unmarshal([]byte(respJson), &loginReq)
+	err := json.Unmarshal([]byte(reqJson), &loginReq)
 	respMsgId = uint16(msg.MSG_ID_ELogin_Ack)
 	if err != nil {
 		errCode := msg.ELoginResult_ServerClosed
