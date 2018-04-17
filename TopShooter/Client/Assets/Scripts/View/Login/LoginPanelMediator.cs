@@ -19,7 +19,7 @@ public class LoginPanelMediator : Mediator {
 
 	//点击按钮;
 	private void OnClickEnterGame(){
-		SendNotification (NotifycationConstant.LoginEnterGame);
+		SendNotification (NotifycationConstant.LoginGame);
 	}
 
 	//设置感兴趣的消息;
@@ -35,18 +35,23 @@ public class LoginPanelMediator : Mediator {
 		case NotifycationConstant.LoginGameResponse:
 			{
 				LoginResult resultInfo = notification.Body as LoginResult;
-				Debug.Log ("Login response!, AccName:" + resultInfo.LoginAccName + " Result:" + resultInfo.Result);
+				Debug.Log ("Login response!Result:" + resultInfo.Result);
 
-				msg.CS_LoginReq sendmsg = new msg.CS_LoginReq();
-                    sendmsg.AccName = resultInfo.LoginAccName;
-                    sendmsg.AccPassword = "123456";
-                    sendmsg.PlatForm = msg.EPlatForm.Windows;
-                    YFNet.NetManager.Instance.SendMessage ((uint)msg.MSG_ID.ELogin_Req, sendmsg);
+
 			}
 			break;
 		default:
 			break;
 		}
 	}
+
+	private void showCreateRolePanel(){
+		
+	} 
+
+	private void onClickCreateRole(){
+		
+	}
+
 
 }
