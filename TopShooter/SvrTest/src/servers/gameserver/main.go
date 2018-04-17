@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	mlog, _ := log.New("debug", "./ylog", slog.Ltime|slog.Ldate, "loginmgr")
+	mlog, _ := log.New("debug", "./ylog", slog.Ltime|slog.Ldate, "gameserver")
 	log.Export(mlog)
 }
 
