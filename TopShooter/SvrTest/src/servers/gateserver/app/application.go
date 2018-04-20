@@ -84,7 +84,7 @@ func (app *Application) HandleLoginMsg(client *ClientPlayer, msgId uint16, msgDa
 		log.Error("Invalid msgId:%v, not register in gate..", msgId)
 		return
 	}
-	m := reflect.New(msgType.Elem())
+	m := reflect.New(proto.MessageType(msgType))
 	err := proto.Unmarshal(msgData, m.Interface().(proto.Message))
 	if err != nil {
 		log.Error("Invalid LoginReq,error:%s, byte:%s", err.Error(), msgData)
@@ -128,7 +128,7 @@ func (app *Application) HandleLoginMsg(client *ClientPlayer, msgId uint16, msgDa
 			return
 		}
 
-		realMsg := reflect.New(respMsgType.Elem())
+		realMsg := reflect.New(proto.MessageType(respMsgType))
 		err = json.Unmarshal([]byte(respMsg.MsgBody), realMsg.Interface())
 		if err != nil {
 			log.Error("json.Unmarshal respMsg.MsgBody failed, respMsg.MsgBody:%s", respMsg.MsgBody)
