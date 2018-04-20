@@ -1,0 +1,7 @@
+{
+	"Addr":"127.0.0.1:13085",
+	"ManagerAddr":"127.0.0.1:13084",
+	"Name":"HallServer1",
+	"ServerType":2,
+	"ServerId":6001
+}
